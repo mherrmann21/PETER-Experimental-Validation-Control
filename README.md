@@ -4,7 +4,13 @@
 ![MATLAB Version](https://img.shields.io/badge/MATLAB-R2025b%2B-blue)
 ![Work in Progress](https://img.shields.io/badge/status-WIP-orange)
 
+<img src="doc/images/example_validation_1.jpg" width="24%"/>
+<img src="doc/images/example_validation_2.jpg" width="24%"/>
+<img src="doc/images/example_tracking_1.jpg" width="24%"/>
+<img src="doc/images/example_tracking_2.jpg" width="24%"/>
+
 # PETER - Experimental Validation & Optimal Control
+
 Experimental model validation & optimal control of the tendon-actuated continuum robot PETER.
 
 This repository contains various scripts and functions for the experimental identification and validation of robot system models and for optimal feedforward control.
