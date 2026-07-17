@@ -31,7 +31,7 @@ The experimental data used in [1] will be provided for download in the future.
 * MATLAB R2025b
    - Required toolboxes: Signal Processing Toolbox, Computer Vision Toolbox, Image Processing Toolbox, Optimization Toolbox (and possibly others)
 * [ELARA](https://github.com/ELARA-Toolbox/ELARA) Toolbox, V0.1 (installed and available on the MATLAB path)
-* [CasADi](https://web.casadi.org/) V3.7.2
+* [CasADi](https://web.casadi.org/) V3.7.2 (installed and available on the MATLAB path)
 
 Later versions of the required software may work, but have not been tested and may lead to different results.
 The code is tested on Windows 11.
@@ -130,7 +130,7 @@ for overlaying photos/videos from experiments with the simulated robot configura
 
 
 ## Additional Information
-For additional details on the implementation, see the ELARA documentation, and for background on the systems and integrators, see [1].
+For additional details on the implementation, see the ELARA documentation, and for background on the systems and experiments, see [1,2].
 
 ## License
 
