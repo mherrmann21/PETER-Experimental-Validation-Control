@@ -87,7 +87,6 @@ function pars = getNominalPeterBaseParams()
         180
         ]*1e-3;
 
-
     % Spacer disk segment length
     lSD = 0.7/14;
 
@@ -95,7 +94,6 @@ function pars = getNominalPeterBaseParams()
     sCableCoMs = [12, 9.5, 6.5, 3.5] * lSD;
 
     % CoM points of the cable segments, computed via angle and radius
-    alphaCable = 180 + [45, 45, 0, 0];
     alphaCable = 107 + [0, 0, 0, 0];
 
     % Masses and CoMs of the cable *segments*
