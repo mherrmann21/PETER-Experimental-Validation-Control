@@ -126,9 +126,9 @@ figure("Name", "IMU Data Comparison");
 tiledlayout;
 for iIMU = 1:nIMUs
     nexttile;
-    plot(1:nSetpoints, squeeze(yExp.Acc(:,1,:)), "-o", "DisplayName", "raw");
+    plot(1:nSetpoints, squeeze(yExp.Acc(:,iIMU,:)), "-o", "DisplayName", "raw");
     hold on;
-    plot(1:nSetpoints, squeeze(accCalib(:,1,:)), "--o", "DisplayName", "calibrated");
+    plot(1:nSetpoints, squeeze(accCalib(:,iIMU,:)), "--o", "DisplayName", "calibrated");
     grid on;
     colororder(lines(3));
     title(sprintf("Accelerometer values IMU %d", iIMU));
@@ -170,8 +170,8 @@ function plotGravityVector(accValues, dataName)
     nIMUs      = size(accValues,2);
     g = 9.807232; % gravity constant Munich
 
-    %% Plot Gravity vector scale
-    figure("Name", "Gravity Vector Magnetude" + dataName)
+    %% Plot gravity-vector magnitude
+    figure("Name", "Gravity Vector Magnitude" + dataName)
     plot(vecnorm(squeeze(accValues(:,1,:)))/g)
     hold on;
     plot(vecnorm(squeeze(accValues(:,2,:)))/g)

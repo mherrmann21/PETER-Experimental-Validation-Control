@@ -67,6 +67,7 @@ xlabel("Setpoint Nr.")
 
 nexttile;
 plot(1:nSetpoints, squeeze(yExp.Acc(:,1,:)), "-o");
+hold on;
 plot(1:nSetpoints, squeeze(yExp.Acc(:,2,:)), "-o");
 grid on;
 title("Accelerometer values")

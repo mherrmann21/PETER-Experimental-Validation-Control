@@ -7,7 +7,7 @@ function [y_IMU_gyr, y_IMU_acc] = computeIMUSystemOutput_casadi(MBSys, IMUDef,..
         % Definitions needed to compute the IMU outputs
         IMUDef      (1,1) MBSysIMUOutputDefinition
 
-        % Variables at time steps k0 and k
+        % Variables at time steps k0, k, and k1
         q_k0        (:,1)
         q_k         (:,1)
         q_k1        (:,1)

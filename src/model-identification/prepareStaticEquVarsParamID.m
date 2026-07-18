@@ -1,7 +1,7 @@
 function [c_Equ, y] = prepareStaticEquVarsParamID(IDSystemNLP, simPars, ...
         q, u, paramVecSym, ...
         opts)
-    %% Build DEL Constraints and System Outputs for Parameter identification
+    %% Build equilibrium constraints and system outputs for parameter identification
     arguments
         % System and output definition struct with NLP variables
         IDSystemNLP
@@ -14,7 +14,7 @@ function [c_Equ, y] = prepareStaticEquVarsParamID(IDSystemNLP, simPars, ...
         % Vector of symbolic NLP parameters
         paramVecSym     (:,1)
 
-        % Wether to use a casadi function map to compute the step data or
+        % Whether to use a CasADi function map to compute the step data or
         % use a simple for loop
         opts.useFunctionMap (1,1) logical = true;
     end

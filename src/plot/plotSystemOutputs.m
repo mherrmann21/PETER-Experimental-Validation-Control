@@ -55,7 +55,7 @@ function fhs = plotSystemOutputs(yData, Name)
         title(sprintf("Angular Velocity IMU %d", iIMU), "Interpreter", "latex");
         grid on;
         legend("$x$", "$y$", "$z$", "Interpreter", "latex");
-        xlabel("frquency $f$ in Hz", "Interpreter", "latex");
+        xlabel("frequency $f$ in Hz", "Interpreter", "latex");
         ylabel("signal amplitude", "Interpreter", "latex");
         xlim([0, 200]);
 
@@ -64,7 +64,7 @@ function fhs = plotSystemOutputs(yData, Name)
         title(sprintf("Acceleration IMU %d", iIMU), "Interpreter", "latex");
         grid on;
         legend("$x$", "$y$", "$z$", "Interpreter", "latex");
-        xlabel("frquency $f$ in Hz", "Interpreter", "latex");
+        xlabel("frequency $f$ in Hz", "Interpreter", "latex");
         ylabel("signal amplitude", "Interpreter", "latex");
         xlim([0, 200]);
     end

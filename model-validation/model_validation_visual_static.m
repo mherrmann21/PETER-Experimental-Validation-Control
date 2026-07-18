@@ -16,7 +16,7 @@ SAVE_PLOTS = 1;
 % Plot save folder
 plotSaveDir = fullfile(getRepositoryRootFolder, "results", "validation");
 
-% Camera calibration file (generated from MATALB computer vision toolbox)
+% Camera calibration file (generated with the MATLAB Computer Vision Toolbox)
 cameraCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", ...
     "camera-params-sony-50mm-3-2-251117-1849.mat");
 
@@ -129,13 +129,13 @@ function fh = drawOverlayImage(MBCSys, g, imPaths, imOrientation, filePathCamera
         % Image orientation (0 = landscape, 1 = portrait)
         imOrientation (:,1) double
 
-        % Camera calibration file (generated from MATALB computer vision toolbox)
+        % Camera calibration file (generated with the MATLAB Computer Vision Toolbox)
         filePathCameraCalib (1,1) string
 
         % Global rotation of the robot base around the z-axis
         opts.phiGlobal (1,1) double = 0;
 
-        % Line width multiplicator
+        % Line-width multiplier
         opts.lineWidth (1,1) double = 1;
     end
 

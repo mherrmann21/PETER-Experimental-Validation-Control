@@ -1,4 +1,4 @@
-function [link, IMUDef] = systemDef_PETER_nominal_reduced(opts)
+function link = systemDef_PETER_nominal_reduced(opts)
     %% Define MBS System: PETER / continuum manipulator
     % With nominal parameters and reduced number of segments (i.e.,
     % segments do not correspond to spacer disk segments)
@@ -15,7 +15,7 @@ function [link, IMUDef] = systemDef_PETER_nominal_reduced(opts)
     fSD = 1.0;                                          % Spacer disks
     fExtCoMs = 0.9;                                     % CoM positions of external masses
     phiT = [-3.25, -3, -3.75];                          % Polar offset angle of straight tendons
-    alpha_cables = 80;                                  % Polar angle specifying the IMU caple position
+    alpha_cables = 80;                                  % Polar angle specifying the IMU cable position
     xiRef = repmat([0;0.06;0;0;0;1], [1,opts.nSeg]);    % Reference curvature
 
 

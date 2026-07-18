@@ -11,7 +11,7 @@ close all
 
 %% Script settings
 
-CREATE_INDIV_PLOTS = 1; % Create individual plots for publication?
+CREATE_INDIV_PLOTS = 0; % Create individual plots for publication?
 SAVE_PLOTS = 1;         % Save the publication plots?
 
 % Compare VI computation time to ODE solvers 

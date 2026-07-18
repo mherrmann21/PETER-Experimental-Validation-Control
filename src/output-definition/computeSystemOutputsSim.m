@@ -15,7 +15,7 @@ function [y, LcOffset]  = computeSystemOutputsSim(MBSim, IMUDef, cableDef, opts)
         % Cable output definition
         cableDef        (1,1) MBSysTendonLengthOutputDefinition
 
-        % Wether to use the absolute tendon length (= false) or the offset
+        % Whether to use the absolute tendon length (= false) or the offset
         % from the initial length as the tendon length measurement/output
         opts.useTendonLengthOffset (1,1) logical = true;
     end
@@ -24,7 +24,6 @@ function [y, LcOffset]  = computeSystemOutputsSim(MBSim, IMUDef, cableDef, opts)
     nCables = cableDef.nCables;
     nSteps  = length(MBSim.simRes.tout)-1;
 
-    yAll    = zeros(6*nIMUs+nCables, nSteps);
     yIMUAcc = zeros(3, nIMUs, nSteps);
     yIMUGyr = zeros(3, nIMUs, nSteps);
     yLc     = zeros(nCables, nSteps);
@@ -61,7 +60,6 @@ function [y, LcOffset]  = computeSystemOutputsSim(MBSim, IMUDef, cableDef, opts)
 
     % Assign to output struct
     y = struct();
-    y.yAll = yAll;
     y.IMUAcc = yIMUAcc;
     y.IMUGyr = yIMUGyr;
     y.Lc     = yLc;

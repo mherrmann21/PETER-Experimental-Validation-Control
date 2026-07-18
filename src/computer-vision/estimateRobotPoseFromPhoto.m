@@ -13,7 +13,7 @@ function [pose_0,im] = estimateRobotPoseFromPhoto(im,camIntrinsics, opts)
         % Pose of the robot base w.r.t. camera
         pose_0
 
-        % Input image with added poses of the aruco marker and backbone
+        % Input image with added poses of the ArUco marker and backbone
         im
     end
 

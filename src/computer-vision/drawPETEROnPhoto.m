@@ -11,7 +11,7 @@ function drawPETEROnPhoto(MBCSys,g, pose_0, camIntrinsics, imOrientation, opts)
 
         imOrientation (1,1) double
 
-        % Line width multiplicator
+        % Line-width multiplier
         opts.lineWidth (1,1) double = 1;
     end
 

@@ -19,7 +19,7 @@ function [c_DEL, y] = prepareDELVarsParamID(IDSystemNLP, simPars, ...
         % Time step indices, at which the output is computed
         yStepIndices    (:,1) double {mustBeInteger}
 
-        % Wether to use a casadi function map to compute the step data or
+        % Whether to use a CasADi function map to compute the step data or
         % use a simple for loop
         opts.useFunctionMap (1,1) logical = true;
     end

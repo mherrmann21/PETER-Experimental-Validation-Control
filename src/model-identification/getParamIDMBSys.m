@@ -177,8 +177,8 @@ function [IDSystemNLP, IDVars, pVectors] = getParamIDMBSys( ...
     % Masses (as factors)
     if ~calibrationOnly
         IDVars.m_a_C.NLPVar = opti.variable(1);
-        IDVars.m_a_C.lb = 1;0.25;1e-3;
-        IDVars.m_a_C.ub = 1;4;1e3;
+        IDVars.m_a_C.lb = 0.25;
+        IDVars.m_a_C.ub = 4;
         IDVars.m_a_C.iv = 1;
         IDVars.m_a_C.fr = 1;
         IDVars.m_a_C.nv = 1;

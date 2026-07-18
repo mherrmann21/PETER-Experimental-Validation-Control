@@ -1,4 +1,4 @@
-%% Validate trajectory tracking with video overlay of dynamic motion over video
+%% Validate trajectory tracking by overlaying the desired motion on video
 %
 % Maximilian Herrmann
 % Chair of Automatic Control
@@ -29,7 +29,7 @@ trajDataFileName = "trajectory_251218_1610_nSeg_8";
 plotSaveDir = fullfile(getRepositoryRootFolder, "results", "tracking");
 
 %%% Image/video data
-% fileNameCalibImage: High-Res image that is used to estimate the camera/robot pose
+% fileNameCalibImage: High-resolution image used to estimate the camera/robot pose
 % fileNameVideo:      Actual video file name
 %
 % tEnd      End time of the video
@@ -49,7 +49,7 @@ tEnd    = 17.3;
 
 %% Load camera calibration
 
-% Camera calibration file (generated from MATALB computer vision toolbox)
+% Camera calibration file (generated with the MATLAB Computer Vision Toolbox)
 cameraCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", ...
     "camera-params-sony-50mm-16-9-251212-1520.mat");
 
@@ -196,7 +196,7 @@ disp("Finished.")
 %% Local functions
 
 function [pose_0, camIntrinsics, im] = getCameraPose(imPath, intrinsics, opts)
-    %% Get the camera pose from a single image from an AruCo marker
+    %% Get the camera pose from a single image containing an ArUco marker
     arguments
         % Full image paths (vector)
         imPath          (1,1) string

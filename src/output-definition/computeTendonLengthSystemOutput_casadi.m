@@ -84,7 +84,7 @@ function Lc = computeTendonLengthsDiscrete(MBSys, cableDef, q, g_rel)
         % No interpolation necessary
         g_disks_rel = g_rel;
     else
-        % Spacer disks may lie inbetween segments
+        % Spacer disks may lie between segments
         % Configurations must be interpolated
 
         % Positions of the beam frames (including first fixed node)
