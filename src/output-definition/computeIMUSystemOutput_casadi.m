@@ -11,7 +11,6 @@ function [y_IMU_gyr, y_IMU_acc] = computeIMUSystemOutput_casadi(MBSys, IMUDef,..
         q_k0        (:,1)
         q_k         (:,1)
         q_k1        (:,1)
-
         g_k         (:,1) SE3
         g_k0        (:,1) SE3
         g_k1        (:,1) SE3
@@ -20,20 +19,17 @@ function [y_IMU_gyr, y_IMU_acc] = computeIMUSystemOutput_casadi(MBSys, IMUDef,..
         h           (1,1)
     end
 
-
     %% Compute IMU outputs
     f = getSE3Functions(q_k);
-
-    %eta_dot = (eta_k - eta_k0)/h;
-    %eta_dot_IMU = zeros(6, IMUDef.nIMUs);
 
     nIMUs = length(IMUDef.s);
 
     omega_IMU_k = cell(nIMUs, 1);
     x_ddot_IMU  = cell(nIMUs, 1);
 
-    for iIMU = 1:nIMUs
+    %%% TODO generalize to include link index
 
+    for iIMU = 1:nIMUs
         g_IMU_rel = IMUDef.g_rel(iIMU);
 
         % Positions of the beam frames (including first fixed node)
@@ -86,9 +82,6 @@ function [y_IMU_gyr, y_IMU_acc] = computeIMUSystemOutput_casadi(MBSys, IMUDef,..
         x_ddot_s = (x_dot_k - x_dot_k0)/h;
         x_ddot_b = g_IMU_k.R.' * x_ddot_s;
 
-        %eta_dot_IMU(:,iIMU) = lAdSE3Inv(g_IMU_rel) * eta_dot(:, iFrIMU);
-
-        %x_ddot_IMU(:,iIMU) = eta_dot_IMU(4:6,iIMU) + 0*g_IMU_k(1:3, 1:3).'*[0;0;9.81];
         x_ddot_IMU{iIMU} = x_ddot_b + g_IMU_k.R.'*[0;0; 9.81];
 
         omega_IMU_k{iIMU} = eta_IMU_k(1:3);

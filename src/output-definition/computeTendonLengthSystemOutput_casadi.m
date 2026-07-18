@@ -79,7 +79,7 @@ function Lc = computeTendonLengthsDiscrete(MBSys, cableDef, q, g_rel)
 
     % Check whether the beam discretization corresponds to spacer disk
     % distribution or not
-    if nDisks == MBSys.nFrames
+    if (nDisks-1) == MBSys.nFrames
         % Spacer disks are directly attached to the frames
         % No interpolation necessary
         g_disks_rel = g_rel;
@@ -123,7 +123,7 @@ function Lc = computeTendonLengthsDiscrete(MBSys, cableDef, q, g_rel)
             % disk
             g_cm_i1 = cableDef.g_cm_SE3(1,iDiskSeg,iC);
             g_cm_i2 = cableDef.g_cm_SE3(2,iDiskSeg,iC);
-            
+
             g_cm_12 = g_cm_i1 \ g_disks_rel(iDiskSeg) * g_cm_i2;
 
             Lc(iC) = Lc(iC) + norm( g_cm_12.x );

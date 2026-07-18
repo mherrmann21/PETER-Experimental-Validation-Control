@@ -44,8 +44,6 @@ function l_c_k = computeTendonLengthsContinuous(MBSys, g_rel_k)
 
             for iC = 1:length(uIndices)
                 % Cable configurations at adjacent nodes
-                % g_cm_i1 = SE3Matrix(eye(3), MBSys.frameData.x_cm(:,1,iFrm,iC));
-                % g_cm_i2 = SE3Matrix(eye(3), MBSys.frameData.x_cm(:,2,iFrm,iC));
                 g_cm_i1 = eye(4);
                 g_cm_i2 = eye(4);
                 g_cm_i1(1:3,4) = MBSys.frameData.x_cm(:,1,iFrm,iC);
@@ -79,7 +77,7 @@ function l_c_k = computeTendonLengthsDiscrete(MBSys, cableDef, q, g_rel)
 
     % Check whether the beam discretization corresponds to spacer disk
     % distribution or not
-    if 0%(nDisks-1) == MBSys.nFrames
+    if (nDisks-1) == MBSys.nFrames
         % Spacer disks are directly attached to the frames
         % No interpolation necessary
         g_disks_rel = g_rel;
@@ -129,7 +127,7 @@ function l_c_k = computeTendonLengthsDiscrete(MBSys, cableDef, q, g_rel)
             g_cm_12 = g_cm_i1 \ g_disks_rel(:,:,iDiskSeg) * g_cm_i2;
 
             l_c_k(iC) = l_c_k(iC) + vecnorm( g_cm_12(1:3,4) );
-        
+
             if DEBUG
                 coordSysSE3(g*g_cm_i1, ...
                     "DrawLabels", false, "Scale", 0.05);
@@ -143,5 +141,5 @@ function l_c_k = computeTendonLengthsDiscrete(MBSys, cableDef, q, g_rel)
         %end
     end
 
-    
+
 end

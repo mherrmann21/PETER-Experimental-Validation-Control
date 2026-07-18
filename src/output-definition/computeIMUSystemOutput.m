@@ -23,17 +23,8 @@ function [y_IMU_gyr, y_IMU_acc] = computeIMUSystemOutput(MBSys, IMUDef, ...
 
     gGrav = 9.807232; % Munich
 
-    % g_rel_k1 = MBSys.computeJointTransformations(q_k1);
-    % g_rel_k  = MBSys.computeJointTransformations(q_k);
-    % g_rel_k0 = MBSys.computeJointTransformations(q_k0);
-    % eta_k  = MBSys.computeDiscreteAbsoluteVelocities(g_rel_k, g_rel_k1, h); 
-    % eta_k0 = MBSys.computeDiscreteAbsoluteVelocities(g_rel_k0, g_rel_k, h); 
-    % eta_dot = (eta_k - eta_k0)/h;
-
     nIMUs = length(IMUDef.s);
     eta_IMU_k = zeros(6, nIMUs);
-    %eta_dot_IMU = zeros(6, nIMUs);
-
     x_ddot_IMU = zeros(3, nIMUs);
 
     %%% TODO generalize to include link index
@@ -71,9 +62,6 @@ function [y_IMU_gyr, y_IMU_acc] = computeIMUSystemOutput(MBSys, IMUDef, ...
         x_ddot_s = (x_dot_k - x_dot_k0)/h;
         x_ddot_b = g_IMU_k(1:3,1:3).' * x_ddot_s;
 
-        %eta_dot_IMU(:,iIMU) = lAdSE3Inv(g_IMU_rel) * eta_dot(:, iFrIMU-1);
-
-        %x_ddot_IMU(:,iIMU) = eta_dot_IMU(4:6,iIMU) + g_IMU_k(1:3, 1:3).'*[0;0;9.81];
         x_ddot_IMU(:,iIMU) = x_ddot_b + g_IMU_k(1:3,1:3).'*[0;0; gGrav];
     end
 
