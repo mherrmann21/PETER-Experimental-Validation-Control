@@ -18,7 +18,7 @@ function [tensionsDS, yExp] = getExperimentData(fileName, tout, opts)
         % Time to shift the output data w.r.t. the original time
         opts.tYShift      (1,1) double = 0;
 
-        % Wether to use the measured tensions (false) or the reference
+        % Whether to use the measured tensions (false) or the reference
         % values (true) as the tensions
         opts.useReferenceTensions (1,1) logical = false;
 
@@ -40,7 +40,7 @@ function [tensionsDS, yExp] = getExperimentData(fileName, tout, opts)
         0.00147053481788324
         0.00150632183204949
         0.00118615475862391
-        ]*10;
+        ];
 
     % Spool radius
     rS = 90/2*1e-3;
@@ -84,7 +84,7 @@ function [tensionsDS, yExp] = getExperimentData(fileName, tout, opts)
     vel_rad_filt = filtfilt(bV, aV, vel_rad);
 
     % Acceleration
-    acc_rad = gradient((vel_rad_filt).', h).';
+    acc_rad = gradient((vel_rad_filt).', hData).';
 
     % Inertia torque
     torque_spool = acc_rad.' .* JSpool;
@@ -132,7 +132,7 @@ function [tensionsDS, yExp] = getExperimentData(fileName, tout, opts)
         figure("Name", "Raw data Tendon Tensions FFT", "NumberTitle", "Off");
         semilogy(f, P1T);
         grid on;
-        xlabel("frquency $f$ in Hz", "Interpreter", "latex");
+        xlabel("frequency $f$ in Hz", "Interpreter", "latex");
         ylabel("signal amplitude", "Interpreter", "latex");
         title("Comparison Measured and Preprocessed Data");
         legend(arrayfun(@(x) sprintf("cable %d", x), 1:4),"Interpreter", "latex");
@@ -168,7 +168,7 @@ function [tensionsDS, yExp] = getExperimentData(fileName, tout, opts)
             title(sprintf("Angular Velocity IMU %d", iIMU), "Interpreter", "latex");
             grid on;
             legend("$x$", "$y$", "$z$", "Interpreter", "latex");
-            xlabel("frquency $f$ in Hz", "Interpreter", "latex");
+            xlabel("frequency $f$ in Hz", "Interpreter", "latex");
             ylabel("signal amplitude", "Interpreter", "latex");
             %xlim([0, 200]);
 
@@ -177,7 +177,7 @@ function [tensionsDS, yExp] = getExperimentData(fileName, tout, opts)
             title(sprintf("Acceleration IMU %d", iIMU), "Interpreter", "latex");
             grid on;
             legend("$x$", "$y$", "$z$", "Interpreter", "latex");
-            xlabel("frquency $f$ in Hz", "Interpreter", "latex");
+            xlabel("frequency $f$ in Hz", "Interpreter", "latex");
             ylabel("signal amplitude", "Interpreter", "latex");
             %xlim([0, 200]);
         end
@@ -186,7 +186,7 @@ function [tensionsDS, yExp] = getExperimentData(fileName, tout, opts)
     %% Prepare outputs
     % Get output data; filter and resample/crop data
     % Note: Filter lowpass frequency is chosen according to simulation sampling
-    % frequ.
+    % frequency.
 
     % Remove unused tendons
     expDataTS.tendonDisplacementActual_m.Data = expDataTS.tendonDisplacementActual_m.Data(:,opts.usedTendons);
