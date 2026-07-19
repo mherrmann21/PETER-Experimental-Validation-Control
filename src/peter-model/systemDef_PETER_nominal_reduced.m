@@ -15,7 +15,7 @@ function link = systemDef_PETER_nominal_reduced(opts)
     fSD = 1.0;                                          % Spacer disks
     fExtCoMs = 0.9;                                     % CoM positions of external masses
     phiT = [-3.25, -3, -3.75];                          % Polar offset angle of straight tendons
-    alpha_cables = 80;                                  % Polar angle specifying the IMU cable position
+    alpha_tendons = 80;                                 % Polar angle specifying the IMU tendon position
     xiRef = repmat([0;0.06;0;0;0;1], [1,opts.nSeg]);    % Reference curvature
 
 
@@ -37,7 +37,7 @@ function link = systemDef_PETER_nominal_reduced(opts)
 
     %% Define Tendon Path Functions
 
-    % Functions that define the cable path by returning the x,y coordinates
+    % Functions that define the tendon path by returning the x,y coordinates
     % of the tendon location in the cross-section plane
 
     % Straight path
@@ -54,9 +54,9 @@ function link = systemDef_PETER_nominal_reduced(opts)
         ];
 
 
-    %% Set Up Cable Configuration
+    %% Set Up Tendon Configuration
 
-    % Cell array of function handles; defines the individual cable paths
+    % Cell array of function handles; defines the individual tendon paths
     x_m_funs = {
         @(s)x_m_fun_straight(s,0.02, 0 + phiT(1))
         @(s)x_m_fun_straight(s,0.02, 120 + phiT(2))
@@ -64,17 +64,19 @@ function link = systemDef_PETER_nominal_reduced(opts)
         @(s)x_m_fun_helical(s, 0.02, link.L, deg2rad(-60))
         };
 
-    link.cableConfig.x_m_funs = x_m_funs(opts.usedTendons);
+    tendonConfig = link.cableConfig;
+    tendonConfig.x_m_funs = x_m_funs(opts.usedTendons);
 
-    % Compute derivatives of cable path functions
-    link.cableConfig = link.cableConfig.getSymbolicPathDerivatives;
+    % Compute derivatives of tendon path functions
+    tendonConfig = tendonConfig.getSymbolicPathDerivatives;
 
-    % Lengths at which the cables terminate along the link length
+    % Lengths at which the tendons terminate along the link length
     LTermination = [
         link.L, link.L, link.L, link.L
         ];
 
-    link.cableConfig.LTermination = LTermination(opts.usedTendons);
+    tendonConfig.LTermination = LTermination(opts.usedTendons);
+    link.cableConfig = tendonConfig;
 
 
     %% Add external masses
@@ -147,20 +149,20 @@ function link = systemDef_PETER_nominal_reduced(opts)
 
     end
 
-    %% Add evenly distributed cable mass
-    sCables = sStDisks(1:end);
-    mCables = sum(pars.IMUCables.m);
-    mCablesSD = ones(length(sCables),1) * mCables / length(sCables);
+    %% Add evenly distributed tendon mass
+    sTendons = sStDisks(1:end);
+    mTendons = sum(pars.IMUTendons.m);
+    mTendonsSD = ones(length(sTendons),1) * mTendons / length(sTendons);
 
-    R_c_rel = [
-        cosd(alpha_cables), -sind(alpha_cables), 0;
-        sind(alpha_cables), +cosd(alpha_cables), 0;
+    R_t_rel = [
+        cosd(alpha_tendons), -sind(alpha_tendons), 0;
+        sind(alpha_tendons), +cosd(alpha_tendons), 0;
         0            , 0         , 1];
 
-    xCoM_cableSeg = R_c_rel * ...
+    xCoM_tendonSeg = R_t_rel * ...
         [30e-3; 0; 0];
 
-    xCoM_cables = repmat(xCoM_cableSeg, [1,length(sDisks)]);
+    xCoM_tendons = repmat(xCoM_tendonSeg, [1,length(sDisks)]);
 
 
 
@@ -170,20 +172,20 @@ function link = systemDef_PETER_nominal_reduced(opts)
 
     extMasses = [
         pars.IMUs.m;
-        %pars.IMUCables.m
-        mCablesSD
+        %pars.IMUTendons.m
+        mTendonsSD
         ]*fExtMasses;
 
     extCoMs = [
         pars.IMUs.xCoM, ...
-        xCoM_cables
-        %pars.IMUCables.xCoMs
+        xCoM_tendons
+        %pars.IMUTendons.xCoMs
         ]*fExtCoMs;
 
     ext_s = [
         pars.IMUs.sAtt
-        %pars.IMUCables.sAtt
-        sCables.'
+        %pars.IMUTendons.sAtt
+        sTendons.'
         ];
 
     for iMass = 1:length(extMasses)
@@ -236,7 +238,7 @@ function link = systemDef_PETER_nominal_reduced(opts)
     disp(sum(link.m_a));
 
     disp("Mass of individual components:");
-    disp(13*pars.StandardDisk.m + pars.TipDisk.m + sum(pars.IMUCables.m) + sum(pars.IMUs.m));
+    disp(13*pars.StandardDisk.m + pars.TipDisk.m + sum(pars.IMUTendons.m) + sum(pars.IMUs.m));
 
 
     %% Define TCP

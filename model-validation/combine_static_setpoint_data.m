@@ -19,19 +19,19 @@ idxSetpoints = 1:22;
 
 u = zeros(4,0);
 yAcc = zeros(3,2,0);
-yLc = zeros(4,0);
+yLt = zeros(4,0);
 
 for iFile = 1:length(dataFileNames)
     expData = load(fullfile(dataFolder, dataFileNames(iFile)));
 
     u = [u, expData.u(:,idxSetpoints)];
     yAcc = cat(3, yAcc, expData.yAcc(:,:,idxSetpoints));
-    yLc = [yLc, expData.yLc(:,idxSetpoints)];
+    yLt = [yLt, expData.yLt(:,idxSetpoints)];
 end
 
 %% Save combined data
 saveFileName = replace(dataFileNames(1), ".mat", "_combined.mat");
-save(fullfile(dataFolder, saveFileName), "yLc", "yAcc", "u");
+save(fullfile(dataFolder, saveFileName), "yLt", "yAcc", "u");
 
 %% End script
 disp("Finished.");

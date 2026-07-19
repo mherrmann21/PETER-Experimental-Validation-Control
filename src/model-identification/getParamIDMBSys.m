@@ -1,5 +1,5 @@
 function [IDSystemNLP, IDVars, pVectors] = getParamIDMBSys( ...
-        opti, includeDynamic, calibrationOnly, IDSystemSym, LcOffsetSim)
+        opti, includeDynamic, calibrationOnly, IDSystemSym, LtOffsetSim)
     %% Get MBSystem parameterized with symbolic NLP variables
     % and the corresponding auxiliary variables
     arguments (Input)
@@ -15,13 +15,13 @@ function [IDSystemNLP, IDVars, pVectors] = getParamIDMBSys( ...
         % System and output definition struct with nominal parameters
         IDSystemSym     (1,1) struct
 
-        % Cable length offset used as initial values for Lc
-        LcOffsetSim     (:,1) double
+        % Tendon length offset used as initial values for Lt
+        LtOffsetSim     (:,1) double
     end
 
     MBSysSym = IDSystemSym.MBSys;
     IMUDef   = IDSystemSym.IMUDef;
-    cableDef = IDSystemSym.cableDef;
+    tendonDef = IDSystemSym.tendonDef;
 
     IDVars = struct();
     % IDVars.X.NLPVar   NLP variable for the parameter
@@ -320,31 +320,31 @@ function [IDSystemNLP, IDVars, pVectors] = getParamIDMBSys( ...
     IDVars.uScale.fr = 1;
     IDVars.uScale.nv = 1;
 
-    IDVars.LcScaleP.NLPVar = opti.variable(MBSysSym.nInputs);
-    IDVars.LcScaleP.lb = 0.7;
-    IDVars.LcScaleP.ub = 1.5;
-    IDVars.LcScaleP.iv = ones(MBSysSym.nInputs,1);
-    IDVars.LcScaleP.fr = ones(MBSysSym.nInputs,1)*10;
-    IDVars.LcScaleP.nv = 1;
+    IDVars.LtScaleP.NLPVar = opti.variable(MBSysSym.nInputs);
+    IDVars.LtScaleP.lb = 0.7;
+    IDVars.LtScaleP.ub = 1.5;
+    IDVars.LtScaleP.iv = ones(MBSysSym.nInputs,1);
+    IDVars.LtScaleP.fr = ones(MBSysSym.nInputs,1)*10;
+    IDVars.LtScaleP.nv = 1;
 
-    IDVars.LcScaleN.NLPVar = opti.variable(MBSysSym.nInputs);
-    IDVars.LcScaleN.lb = 0.7;
-    IDVars.LcScaleN.ub = 1.5;
-    IDVars.LcScaleN.iv = ones(MBSysSym.nInputs,1);
-    IDVars.LcScaleN.fr = ones(MBSysSym.nInputs,1)*10;
-    IDVars.LcScaleN.nv = 1;
+    IDVars.LtScaleN.NLPVar = opti.variable(MBSysSym.nInputs);
+    IDVars.LtScaleN.lb = 0.7;
+    IDVars.LtScaleN.ub = 1.5;
+    IDVars.LtScaleN.iv = ones(MBSysSym.nInputs,1);
+    IDVars.LtScaleN.fr = ones(MBSysSym.nInputs,1)*10;
+    IDVars.LtScaleN.nv = 1;
 
-    IDVars.LcOffset.NLPVar = opti.variable(MBSysSym.nInputs);
-    IDVars.LcOffset.lb = 0.65;
-    IDVars.LcOffset.ub = 0.75;
-    IDVars.LcOffset.iv = LcOffsetSim;
-    IDVars.LcOffset.fr = ones(MBSysSym.nInputs,1) * 1e-3;
-    IDVars.LcOffset.nv = LcOffsetSim;
+    IDVars.LtOffset.NLPVar = opti.variable(MBSysSym.nInputs);
+    IDVars.LtOffset.lb = 0.65;
+    IDVars.LtOffset.ub = 0.75;
+    IDVars.LtOffset.iv = LtOffsetSim;
+    IDVars.LtOffset.fr = ones(MBSysSym.nInputs,1) * 1e-3;
+    IDVars.LtOffset.nv = LtOffsetSim;
 
 
     %% Tendon paths
 
-    cableDefNLP = cableDef;
+    tendonDefNLP = tendonDef;
 
     if ~calibrationOnly
 
@@ -377,10 +377,10 @@ function [IDSystemNLP, IDVars, pVectors] = getParamIDMBSys( ...
                     = R_T_rel * MBSysSym.frameData.g_cm(2,iSeg,iT).x;
             end
 
-            % Tendon path in cabledef
-            for iSeg = 1:size(cableDef.g_cm_SE3,2)
-                cableDefNLP.g_cm_SE3(1,iSeg,iT).x = R_T_rel * cableDef.g_cm_SE3(1,iSeg,iT).x;
-                cableDefNLP.g_cm_SE3(2,iSeg,iT).x = R_T_rel * cableDef.g_cm_SE3(2,iSeg,iT).x;
+            % Tendon path in tendonDef
+            for iSeg = 1:size(tendonDef.g_tm_SE3,2)
+                tendonDefNLP.g_tm_SE3(1,iSeg,iT).x = R_T_rel * tendonDef.g_tm_SE3(1,iSeg,iT).x;
+                tendonDefNLP.g_tm_SE3(2,iSeg,iT).x = R_T_rel * tendonDef.g_tm_SE3(2,iSeg,iT).x;
             end
         end
     end
@@ -408,5 +408,5 @@ function [IDSystemNLP, IDVars, pVectors] = getParamIDMBSys( ...
     IDSystemNLP = struct;
     IDSystemNLP.MBSys    = MBSysNLP;
     IDSystemNLP.IMUDef   = IMUDefNLP;
-    IDSystemNLP.cableDef = cableDefNLP;
+    IDSystemNLP.tendonDef = tendonDefNLP;
 end

@@ -25,10 +25,10 @@ usedTendons = [1,2,3];
 plotSaveDir = fullfile(getRepositoryRootFolder, "results", "validation");
 
 % Accelerometer calibration file
-accCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", "IMUCalib_260717_1307");
+accCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", "IMUCalib_260719_1229");
 
 % Identified system model
-modelParameterFile = fullfile(getRepositoryRootFolder, "data", "identification", "IDParams_static_260717_1309_nSeg_12");
+modelParameterFile = fullfile(getRepositoryRootFolder, "data", "identification", "IDParams_static_260719_1231_nSeg_12");
 
 % Dynamic data parameters
 dataFolderDyn = fullfile(getRepositoryRootFolder, "data", "experiments", "raw");
@@ -73,7 +73,7 @@ fhs_dyn = plotSystemOutputs(yExpDyn, "Exp");
 expDataStat = load(fullfile(dataFolderStat, dataFileNameStat));
 
 yExpStat = struct();
-yExpStat.Lc = expDataStat.yLc(usedTendons,:);
+yExpStat.Lt = expDataStat.yLt(usedTendons,:);
 yExpStat.Acc = expDataStat.yAcc;
 
 uSP = expDataStat.u(usedTendons,:);
@@ -84,7 +84,7 @@ idxSetpoints = vecnorm(uSP, 2, 1) > uMin;
 %idxSetpoints = 1:12;
 %idxSetpoints = [1:12, 23:22+12, 45:44+12];
 
-yExpStat.Lc  = yExpStat.Lc(:, idxSetpoints);
+yExpStat.Lt  = yExpStat.Lt(:, idxSetpoints);
 yExpStat.Acc = yExpStat.Acc(:, :, idxSetpoints);
 uSP      = uSP(:, idxSetpoints);
 
@@ -98,27 +98,27 @@ links = systemDef_PETER_nominal_reduced("nSeg", 12, "usedTendons", usedTendons);
 MBSim = MBSimulation(links, "displayInfo", false);
 if 0
     % Nominal system
-    [IMUDef, cableDef] = definePETEROutputs(links);
+    [IMUDef, tendonDef] = definePETEROutputs(links);
     MBSys = MBSim.MBSys;
     MBSysSym = MBSystemSym(links);
 
-    IDstruct.paramsRel.LcScaleP = 1;
-    IDstruct.paramsRel.LcScaleN = 1;
-    IDstruct.paramsRel.LcOffset = ones(MBSys.nInputs,1)*0.68;
+    IDstruct.paramsRel.LtScaleP = 1;
+    IDstruct.paramsRel.LtScaleN = 1;
+    IDstruct.paramsRel.LtOffset = ones(MBSys.nInputs,1)*0.68;
 else
     % Load system from identification
     IDstruct = load(modelParameterFile);
     MBSys    = IDstruct.MBSysOpt;
     MBSysSym = MBSystemNum2MBSystemSym(MBSys);
     IMUDef = IDstruct.IMUDefOpt;
-    cableDef = IDstruct.cableDefOpt;
+    tendonDef = IDstruct.tendonDefOpt;
     MBSim.MBSys = MBSys;
 end
 
 IDSystemNum = struct;
 IDSystemNum.MBSys    = MBSys;
 IDSystemNum.IMUDef   = IMUDef;
-IDSystemNum.cableDef = cableDef;
+IDSystemNum.tendonDef = tendonDef;
 
 IDSystemSym = IDSystemNum;
 IDSystemSym.MBSys = MBSysSym;
@@ -156,16 +156,16 @@ MBSim.plotAll;
 
 % Compute system outputs
 disp("Computing simulation outputs...")
-[ySimDyn, LcOffsetSimDyn]  = computeSystemOutputsSim(MBSim, IMUDef, cableDef, "useTendonLengthOffset", false);
+[ySimDyn, ~]  = computeSystemOutputsSim(MBSim, IMUDef, tendonDef, "useTendonLengthOffset", false);
 
 % Plot outputs
 %fhs = plotSystemOutputs(ySim, "Sim");
 
 % Adjust tendon lengths in simulation data
-ySimDyn_Lc_P = IDstruct.paramsRel.LcScaleP .* (ySimDyn.Lc - IDstruct.paramsRel.LcOffset);
-ySimDyn_Lc_N = IDstruct.paramsRel.LcScaleN .* (ySimDyn.Lc - IDstruct.paramsRel.LcOffset);
-ySimDyn.Lc(ySimDyn.Lc > 0) = ySimDyn_Lc_P(ySimDyn.Lc > 0);
-ySimDyn.Lc(ySimDyn.Lc < 0) = ySimDyn_Lc_N(ySimDyn.Lc < 0);
+ySimDyn_Lt_P = IDstruct.paramsRel.LtScaleP .* (ySimDyn.Lt - IDstruct.paramsRel.LtOffset);
+ySimDyn_Lt_N = IDstruct.paramsRel.LtScaleN .* (ySimDyn.Lt - IDstruct.paramsRel.LtOffset);
+ySimDyn.Lt(ySimDyn.Lt > 0) = ySimDyn_Lt_P(ySimDyn.Lt > 0);
+ySimDyn.Lt(ySimDyn.Lt < 0) = ySimDyn_Lt_N(ySimDyn.Lt < 0);
 
 % Comparison
 fhs_dyn = plotSystemOutputComparison(yExpDyn, ySimDyn, "Exp", "IG Nominal");
@@ -173,13 +173,12 @@ fhs_dyn = plotSystemOutputComparison(yExpDyn, ySimDyn, "Exp", "IG Nominal");
 
 %% Static simulation
 
-[qSimStat, ySimStat, LcOffsetSimStat] = computeSetPointEqulibria(MBSim, uSP, IMUDef, cableDef);
-%ySimStat.Lc = ySimStat.Lc - LcOffsetSimStat;
+[qSimStat, ySimStat, ~] = computeSetPointEqulibria(MBSim, uSP, IMUDef, tendonDef);
 
-ySimStat_Lc_P = IDstruct.paramsRel.LcScaleP .* (ySimStat.Lc - IDstruct.paramsRel.LcOffset);
-ySimStat_Lc_N = IDstruct.paramsRel.LcScaleN .* (ySimStat.Lc - IDstruct.paramsRel.LcOffset);
-ySimStat.Lc(ySimStat.Lc > 0) = ySimStat_Lc_P(ySimStat.Lc > 0);
-ySimStat.Lc(ySimStat.Lc < 0) = ySimStat_Lc_N(ySimStat.Lc < 0);
+ySimStat_Lt_P = IDstruct.paramsRel.LtScaleP .* (ySimStat.Lt - IDstruct.paramsRel.LtOffset);
+ySimStat_Lt_N = IDstruct.paramsRel.LtScaleN .* (ySimStat.Lt - IDstruct.paramsRel.LtOffset);
+ySimStat.Lt(ySimStat.Lt > 0) = ySimStat_Lt_P(ySimStat.Lt > 0);
+ySimStat.Lt(ySimStat.Lt < 0) = ySimStat_Lt_N(ySimStat.Lt < 0);
 
 % Plot outputs
 fh = plotStaticSystemOutputComparison(yExpStat, ySimStat, "Exp", "Sim Nominal");
@@ -197,13 +196,13 @@ disp("RMSE Accelerations:")
 disp(rmse(yExpStat.Acc,ySimStat.Acc,3).');
 
 disp("RMSE Tendon Displacements (mm):")
-disp(rmse(yExpStat.Lc,ySimStat.Lc,2).'*1e3);
+disp(rmse(yExpStat.Lt,ySimStat.Lt,2).'*1e3);
 
 
 
 %%
 if CREATE_INDIV_PLOTS
-    %% Dynamics: Plot inputs / cable tensions
+    %% Dynamics: Plot inputs / tendon tensions
 
     plotLineWidth = 1.3;
 
@@ -211,7 +210,7 @@ if CREATE_INDIV_PLOTS
     colorA = tumColors().TUMBlue4;
     colorB = tumColors().TUMOrange;
 
-    % Cable lengths
+    % Tendon lengths
     fh_tens = figure( ...
         "Name", "comp_dyn_tensions", ...
         "NumberTitle", "off", ...
@@ -333,9 +332,9 @@ if CREATE_INDIV_PLOTS
     for iAxis = 1:size(tensionsExpDyn,2)
         ax = nexttile;
 
-        plot(yExpDyn.tout, yExpDyn.Lc(iAxis,:)*1e3, "-", "LineWidth", plotLineWidth);
+        plot(yExpDyn.tout, yExpDyn.Lt(iAxis,:)*1e3, "-", "LineWidth", plotLineWidth);
         hold on;
-        plot(ySimDyn.tout, ySimDyn.Lc(iAxis,:)*1e3, "-.", "LineWidth", plotLineWidth);
+        plot(ySimDyn.tout, ySimDyn.Lt(iAxis,:)*1e3, "-.", "LineWidth", plotLineWidth);
 
         grid on;
         ylabel(sprintf("$\\Delta L_%d$ in mm",iAxis), "Interpreter", "latex");
@@ -357,10 +356,9 @@ if CREATE_INDIV_PLOTS
     lSt1 = "-";
     lSt2 = "-..";
 
-    nSetpoints = size(ySimStat.Lc, 2);
-    nCables = size(yExpDyn.Lc, 1);
+    nSetpoints = size(ySimStat.Lt, 2);
 
-    nTendons = size(ySimStat.Lc,1);
+    nTendons = size(ySimStat.Lt,1);
     fhs_stat_imu = gobjects(nTendons, nIMUs);
     fhs_stat_L   = gobjects(nTendons,1);
 
@@ -417,10 +415,10 @@ if CREATE_INDIV_PLOTS
         for iAxis = 1:size(tensionsExpDyn,2)
             ax = nexttile;
 
-            plot(uSP_iT, yExpStat.Lc(iAxis,idxSetPoints_iT)*1e3, ".-", ...
+            plot(uSP_iT, yExpStat.Lt(iAxis,idxSetPoints_iT)*1e3, ".-", ...
                 "LineWidth", plotLineWidth);
             hold on;
-            plot(uSP_iT, ySimStat.Lc(iAxis,idxSetPoints_iT)*1e3, ".-.", ...
+            plot(uSP_iT, ySimStat.Lt(iAxis,idxSetPoints_iT)*1e3, ".-.", ...
                 "LineWidth", plotLineWidth);
 
             grid on;

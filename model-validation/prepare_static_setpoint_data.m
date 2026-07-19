@@ -141,13 +141,13 @@ end
 
 %% Get mean setpoint values
 
-yLc  = zeros(4,nSetpoints);
+yLt  = zeros(4,nSetpoints);
 yAcc = zeros(3,2,nSetpoints);
 u   = zeros(4,nSetpoints);
 
 for iSP = 1:nSetpoints
     idxSetpoint = idxDataStart(iSP):idxDataEnd(iSP);
-    yLc(:,iSP) = mean(expDataFilt.tendonDisplacementActual(idxSetpoint,:));
+    yLt(:,iSP) = mean(expDataFilt.tendonDisplacementActual(idxSetpoint,:));
     
     yAcc(:,1,iSP) = mean(expDataFilt.acc_1(idxSetpoint,:));
     yAcc(:,2,iSP) = mean(expDataFilt.acc_2(idxSetpoint,:));
@@ -158,7 +158,7 @@ end
 
 saveFileName = replace(dataFileName, ".mat", "_setpoints.mat");
 
-save(fullfile(saveFolder, saveFileName), "yLc", "yAcc", "u");
+save(fullfile(saveFolder, saveFileName), "yLt", "yAcc", "u");
 
 
 %% Plot setpoint data
@@ -166,7 +166,7 @@ save(fullfile(saveFolder, saveFileName), "yLc", "yAcc", "u");
 figure("Name", "Setpoint values");
 tiledlayout;
 nexttile;
-plot(1:nSetpoints, yLc, "-o");
+plot(1:nSetpoints, yLt, "-o");
 grid on;
 title("Tendon displacement");
 xlabel("Setpoint Nr.");

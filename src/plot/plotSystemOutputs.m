@@ -71,11 +71,11 @@ function fhs = plotSystemOutputs(yData, Name)
 
     %% Tendon length
 
-    fhs(end+1) = figure("NumberTitle", "off", "Name", Name + ": Outputs Cable Lengths");
-    plot(yData.tout, yData.Lc);
-    title("Cable lengths");
+    fhs(end+1) = figure("NumberTitle", "off", "Name", Name + ": Outputs Tendon Lengths");
+    plot(yData.tout, yData.Lt);
+    title("Tendon lengths");
     grid on;
     xlabel("time $t$ in s", "Interpreter", "latex");
-    ylabel("cable length in m", "Interpreter", "latex");
-    legend(arrayfun(@(x) sprintf("Cable %d", x), 1:size(yData.Lc,1)));
+    ylabel("tendon length in m", "Interpreter", "latex");
+    legend(arrayfun(@(x) sprintf("Tendon %d", x), 1:size(yData.Lt,1)));
 end

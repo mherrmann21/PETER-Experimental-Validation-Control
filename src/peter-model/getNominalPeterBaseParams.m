@@ -74,13 +74,13 @@ function pars = getNominalPeterBaseParams()
     pars.IMUDisk.sAtt = sIMUs.';
 
 
-    %% IMU Cable weight calculation
+    %% IMU tendon weight calculation
 
-    % Cable weight per length (specific mass)
-    m_cable_sp = 8.09 / 44;
+    % Tendon weight per length (specific mass)
+    m_tendon_sp = 8.09 / 44;
 
-    % Lengths of the cable segments (top to bottom)
-    cableLengths = [
+    % Lengths of the tendon segments (top to bottom)
+    tendonLengths = [
         160
         190
         170
@@ -90,48 +90,48 @@ function pars = getNominalPeterBaseParams()
     % Spacer disk segment length
     lSD = 0.7/14;
 
-    % Center of mass points of the cable segments
-    sCableCoMs = [12, 9.5, 6.5, 3.5] * lSD;
+    % Center of mass points of the tendon segments
+    sTendonCoMs = [12, 9.5, 6.5, 3.5] * lSD;
 
-    % CoM points of the cable segments, computed via angle and radius
-    alphaCable = 107 + [0, 0, 0, 0];
+    % CoM points of the tendon segments, computed via angle and radius
+    alphaTendon = 107 + [0, 0, 0, 0];
 
-    % Masses and CoMs of the cable *segments*
-    m_cableSeg = cableLengths * m_cable_sp;
-    xCoM_cableSegs = zeros(3, length(cableLengths));
-    for iC = 1:length(cableLengths)
-        alpha = alphaCable(iC);
-        R_c_rel = [
+    % Masses and CoMs of the tendon *segments*
+    m_tendonSeg = tendonLengths * m_tendon_sp;
+    xCoM_tendonSegs = zeros(3, length(tendonLengths));
+    for iT = 1:length(tendonLengths)
+        alpha = alphaTendon(iT);
+        R_t_rel = [
             cosd(alpha), -sind(alpha), 0;
             sind(alpha), +cosd(alpha), 0;
             0            , 0         , 1];
 
-        xCoM_cableSegs(:,iC) = R_c_rel * ...
+        xCoM_tendonSegs(:,iT) = R_t_rel * ...
             [30e-3; 0; 0];
     end
 
-    % Points where the cables are attached
-    sCableAtt = [13,11,8,5,2] * lSD;
+    % Points where the tendons are attached
+    sTendonAtt = [13,11,8,5,2] * lSD;
 
     % Compute contributions to the spacer disks
-    pars.IMUCables.xCoMs = zeros(3, 0);
-    pars.IMUCables.m    = zeros(0,1);
-    pars.IMUCables.sAtt = zeros(0,1);
+    pars.IMUTendons.xCoMs = zeros(3, 0);
+    pars.IMUTendons.m    = zeros(0,1);
+    pars.IMUTendons.sAtt = zeros(0,1);
 
-    for iC = 1:length(cableLengths)
-        pars.IMUCables.m(end+1,1) = m_cableSeg(iC)/2;
-        pars.IMUCables.m(end+1,1) = m_cableSeg(iC)/2;
+    for iT = 1:length(tendonLengths)
+        pars.IMUTendons.m(end+1,1) = m_tendonSeg(iT)/2;
+        pars.IMUTendons.m(end+1,1) = m_tendonSeg(iT)/2;
 
-        pars.IMUCables.sAtt(end+1,1) = sCableAtt(iC);
-        pars.IMUCables.sAtt(end+1,1) = sCableAtt(iC+1);
+        pars.IMUTendons.sAtt(end+1,1) = sTendonAtt(iT);
+        pars.IMUTendons.sAtt(end+1,1) = sTendonAtt(iT+1);
 
-        pars.IMUCables.xCoMs(:,end+1) = [
-            xCoM_cableSegs(1:2,iC);
-            sCableCoMs(iC) - sCableAtt(iC)
+        pars.IMUTendons.xCoMs(:,end+1) = [
+            xCoM_tendonSegs(1:2,iT);
+            sTendonCoMs(iT) - sTendonAtt(iT)
             ];
-        pars.IMUCables.xCoMs(:,end+1) = [
-            xCoM_cableSegs(1:2,iC);
-            sCableCoMs(iC) - sCableAtt(iC+1)
+        pars.IMUTendons.xCoMs(:,end+1) = [
+            xCoM_tendonSegs(1:2,iT);
+            sTendonCoMs(iT) - sTendonAtt(iT+1)
             ];
     end
    

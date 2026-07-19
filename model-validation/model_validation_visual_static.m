@@ -50,7 +50,7 @@ else
     MBSys    = IDstruct.MBSysOpt;
     MBSysSym = MBSystemNum2MBSystemSym(MBSys);
     IMUDef = IDstruct.IMUDefOpt;
-    tendonDef = IDstruct.cableDefOpt;
+    tendonDef = IDstruct.tendonDefOpt;
     MBSim.MBSys = MBSys;
 end
 
@@ -67,7 +67,7 @@ MBCSys = MBControlSystem(MBSys, IMUDef, tendonDef);
 %% Simulate setpoints
 
 uSP = [compSetPoints.u];
-[qSimStat, ySimStat, LcOffsetSimStat] = computeSetPointEqulibria(MBSim, uSP, IMUDef, tendonDef);
+[qSimStat, ySimStat, ~] = computeSetPointEqulibria(MBSim, uSP, IMUDef, tendonDef);
 
 
 %% Draw setpoints

@@ -48,7 +48,7 @@ h = 2^-7;
 links = systemDef_PETER_nominal_reduced("nSeg", nSeg, "usedTendons", usedTendons);
 MBSim = MBSimulation(links, "displayInfo", false);
 
-[IMUDef, cableDef] = definePETEROutputs(links);
+[IMUDef, tendonDef] = definePETEROutputs(links);
 
 MBSys = MBSim.MBSys;
 MBSysSym = MBSystemSym(links);
@@ -115,7 +115,7 @@ MBSimIG = MBSimIG.simulateSystem;
 
 % Compute system outputs
 disp("Computing simulation outputs...")
-[ySim, LcOffsetSim]  = computeSystemOutputsSim(MBSimIG, IMUDef, cableDef);
+[ySim, LtOffsetSim]  = computeSystemOutputsSim(MBSimIG, IMUDef, tendonDef);
 
 % Plot outputs
 %fhs = plotSystemOutputs(ySim, "Sim");
@@ -138,13 +138,13 @@ opti = casadi.Opti;
 IDSystemNum = struct;
 IDSystemNum.MBSys    = MBSys;
 IDSystemNum.IMUDef   = IMUDef;
-IDSystemNum.cableDef = cableDef;
+IDSystemNum.tendonDef = tendonDef;
 
 IDSystemSym = IDSystemNum;
 IDSystemSym.MBSys = MBSysSym;
 
 [IDSystemNLP, IDVars, pVectors] = getParamIDMBSys( ...
-    opti, true, false, IDSystemSym, LcOffsetSim);
+    opti, true, false, IDSystemSym, LtOffsetSim);
 
 paramVecNLP = pVectors.NLPVar;
 
@@ -193,22 +193,22 @@ if TEST_SYM_FRAMEWORK
     yExp = ySim;
 end
 
-% Use the separate cable displacement calibration factors for positive and
+% Use the separate tendon displacement calibration factors for positive and
 % negative measured displacements, as in the static identification.
-yExpLc = yExp.Lc(:,yStepIndices);
-idx_tdP = find(yExpLc >= 0);
-idx_tdN = find(yExpLc < 0);
+yExpLt = yExp.Lt(:,yStepIndices);
+idx_tdP = find(yExpLt >= 0);
+idx_tdN = find(yExpLt < 0);
 
-yLcOffset_NLP_P = IDVars.LcScaleP.NLPVar .* (yNLP.Lc - IDVars.LcOffset.NLPVar);
-yLcOffset_NLP_N = IDVars.LcScaleN.NLPVar .* (yNLP.Lc - IDVars.LcOffset.NLPVar);
+yLtOffset_NLP_P = IDVars.LtScaleP.NLPVar .* (yNLP.Lt - IDVars.LtOffset.NLPVar);
+yLtOffset_NLP_N = IDVars.LtScaleN.NLPVar .* (yNLP.Lt - IDVars.LtOffset.NLPVar);
 
 f = ...
     wY(1) * sumsqr(yNLP.IMUGyr1-squeeze(yExp.IMUGyr(:,1,yStepIndices))) ...
     + wY(2) * sumsqr(yNLP.IMUGyr2-squeeze(yExp.IMUGyr(:,2,yStepIndices))) ...
     + wY(3) * sumsqr(yNLP.IMUAcc1-squeeze(yExp.IMUAcc(:,1,yStepIndices))) ...
     + wY(4) * sumsqr(yNLP.IMUAcc2-squeeze(yExp.IMUAcc(:,2,yStepIndices))) ...
-    + wY(5) * sumsqr(yLcOffset_NLP_P(idx_tdP)-yExpLc(idx_tdP)) ...
-    + wY(5) * sumsqr(yLcOffset_NLP_N(idx_tdN)-yExpLc(idx_tdN));
+    + wY(5) * sumsqr(yLtOffset_NLP_P(idx_tdP)-yExpLt(idx_tdP)) ...
+    + wY(5) * sumsqr(yLtOffset_NLP_N(idx_tdN)-yExpLt(idx_tdN));
 
 % Regulation term
 fR = wR * sumsqr(pVectors.fr .* (paramVecNLP - pVectors.iv));
@@ -250,8 +250,8 @@ opti.set_initial(q_NLP, MBSimIG.simRes.q);
 % Roughly normalize scales of all outputs
 sYAcc = 1/max(abs(yExp.IMUAcc(:)));
 sYGyr = 1/max(abs(yExp.IMUGyr(:)));
-sYLc  = 1/max(abs(yExp.Lc(:)));
-sVec = [sYGyr,sYGyr,sYAcc,sYAcc,sYLc];
+sYLt  = 1/max(abs(yExp.Lt(:)));
+sVec = [sYGyr,sYGyr,sYAcc,sYAcc,sYLt];
 
 opti.set_value(wY, [1,1,1e-5,1e-5, 1].*sVec*1e0);
 opti.set_value(wR, 0.005);
@@ -277,25 +277,25 @@ sol = opti.solve();
 GET_DEBUG_VALUE = false; % Set to true if solution failed
 
 if GET_DEBUG_VALUE
-    solLcOffset = opti.debug.value(IDVars.LcOffset.NLPVar);
+    solLtOffset = opti.debug.value(IDVars.LtOffset.NLPVar);
     ySolIMUGyr1 = opti.debug.value(yNLP.IMUGyr1);
     ySolIMUGyr2 = opti.debug.value(yNLP.IMUGyr2);
     ySolIMUAcc1 = opti.debug.value(yNLP.IMUAcc1);
     ySolIMUAcc2 = opti.debug.value(yNLP.IMUAcc2);
-    ySolLcP     = opti.debug.value(yLcOffset_NLP_P);
-    ySolLcN     = opti.debug.value(yLcOffset_NLP_N);
+    ySolLtP     = opti.debug.value(yLtOffset_NLP_P);
+    ySolLtN     = opti.debug.value(yLtOffset_NLP_N);
 else
-    solLcOffset = sol.value(IDVars.LcOffset.NLPVar);
+    solLtOffset = sol.value(IDVars.LtOffset.NLPVar);
     ySolIMUGyr1 = sol.value(yNLP.IMUGyr1);
     ySolIMUGyr2 = sol.value(yNLP.IMUGyr2);
     ySolIMUAcc1 = sol.value(yNLP.IMUAcc1);
     ySolIMUAcc2 = sol.value(yNLP.IMUAcc2);
-    ySolLcP     = sol.value(yLcOffset_NLP_P);
-    ySolLcN     = sol.value(yLcOffset_NLP_N);
+    ySolLtP     = sol.value(yLtOffset_NLP_P);
+    ySolLtN     = sol.value(yLtOffset_NLP_N);
 end
 
-ySolLc = ySolLcP;
-ySolLc(idx_tdN) = ySolLcN(idx_tdN);
+ySolLt = ySolLtP;
+ySolLt(idx_tdN) = ySolLtN(idx_tdN);
 
 
 % Assign to output struct
@@ -303,7 +303,7 @@ yOpt = struct();
 yOpt.yAll = [];
 yOpt.IMUAcc = cat(2, reshape(ySolIMUAcc1, 3, 1, []), reshape(ySolIMUAcc2, 3, 1, []));
 yOpt.IMUGyr = cat(2, reshape(ySolIMUGyr1, 3, 1, []), reshape(ySolIMUGyr2, 3, 1, []));
-yOpt.Lc     = ySolLc;
+yOpt.Lt     = ySolLt;
 yOpt.tout   = tout(yStepIndices);
 
 % plotSystemOutputs(yOpt, "Opt");
@@ -347,7 +347,7 @@ for iVar = 1:length(IDVarFields)
     disp(paramsRel.(pName).');
 end
 
-paramsRel.LcOffset = solLcOffset;
+paramsRel.LtOffset = solLtOffset;
 
 
 %% Get numeric MBSystem with identified parameters
@@ -355,7 +355,7 @@ paramsRel.LcOffset = solLcOffset;
 IDSystemOpt = getMBSysParamsFromIDVars(IDSystemNum, IDSystemNLP, sol);
 
 MBSysOpt    = IDSystemOpt.MBSys;
-cableDefOpt = IDSystemOpt.cableDef;
+tendonDefOpt = IDSystemOpt.tendonDef;
 IMUDefOpt   = IDSystemOpt.IMUDef;
 
 
@@ -377,15 +377,15 @@ MBSimVal = MBSimVal.simulateSystem;
 
 % Compute system outputs
 disp("Computing simulation outputs...")
-[yVal, ~] = computeSystemOutputsSim(MBSimVal, IMUDefOpt, cableDefOpt, ...
+[yVal, ~] = computeSystemOutputsSim(MBSimVal, IMUDefOpt, tendonDefOpt, ...
     "useTendonLengthOffset", false);
 
-% Apply identified cable displacement calibration.
-yValLcRel = yVal.Lc - solLcOffset;
-yValLcP = paramsRel.LcScaleP .* yValLcRel;
-yValLcN = paramsRel.LcScaleN .* yValLcRel;
-yVal.Lc = yValLcP;
-yVal.Lc(yValLcRel < 0) = yValLcN(yValLcRel < 0);
+% Apply identified tendon displacement calibration.
+yValLtRel = yVal.Lt - solLtOffset;
+yValLtP = paramsRel.LtScaleP .* yValLtRel;
+yValLtN = paramsRel.LtScaleN .* yValLtRel;
+yVal.Lt = yValLtP;
+yVal.Lt(yValLtRel < 0) = yValLtN(yValLtRel < 0);
 
 % Plot outputs
 %fhs = plotSystemOutputs(ySim, "Sim");
@@ -402,7 +402,7 @@ disp("Saving results...")
 fprintf("Filename: %s\n", saveFileName);
 
 save(fullfile(saveFolder,saveFileName), ...
-    "MBSysOpt", "IMUDefOpt", "cableDefOpt", ...
+    "MBSysOpt", "IMUDefOpt", "tendonDefOpt", ...
     "paramsRel", "links", "dataFileName");
 
 

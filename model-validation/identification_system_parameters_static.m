@@ -20,7 +20,7 @@ dataFolder   = fullfile(getRepositoryRootFolder, "data", "experiments", "process
 dataFileName = "251218_1440_id_data_static_tendon_1_setpoints_combined.mat";
 
 % IMU calibration data
-accCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", "IMUCalib_260717_1307");
+accCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", "IMUCalib_260719_1229");
 
 % Output folder
 saveFolder = fullfile(getRepositoryRootFolder, "data", "identification");
@@ -35,7 +35,7 @@ nSeg = 12;
 expData = load(fullfile(dataFolder, dataFileName));
 
 yExp = struct();
-yExp.Lc = expData.yLc(usedTendons,:);
+yExp.Lt = expData.yLt(usedTendons,:);
 yExp.Acc = expData.yAcc;
 
 uSP = expData.u(usedTendons,:);
@@ -45,12 +45,12 @@ uMin = 0;
 idxSetpoints = vecnorm(uSP, 2, 1) > uMin;
 %idxSetpoints = [1:12, 23:22+12, 45:44+12];
 
-yExp.Lc  = yExp.Lc(:, idxSetpoints);
+yExp.Lt  = yExp.Lt(:, idxSetpoints);
 yExp.Acc = yExp.Acc(:, :, idxSetpoints);
 uSP      = uSP(:, idxSetpoints);
 
 nSetpoints = size(uSP,2);
-nCables = length(usedTendons);
+nTendons = length(usedTendons);
 
 % Apply accelerometer calibration
 yExp.Acc = applyAccelerometerCalibration(yExp.Acc, accCalibFile);
@@ -60,7 +60,7 @@ yExp.Acc = applyAccelerometerCalibration(yExp.Acc, accCalibFile);
 figure("Name", "Setpoint values");
 tiledlayout;
 nexttile;
-plot(1:nSetpoints, yExp.Lc, "-o");
+plot(1:nSetpoints, yExp.Lt, "-o");
 grid on;
 title("Tendon displacement")
 xlabel("Setpoint Nr.")
@@ -83,8 +83,8 @@ xlabel("Setpoint Nr.")
 %% Get indices of positive and negative tension setpoints
 
 xThreshold = 0;
-idx_SP_tdP = find(yExp.Lc > xThreshold);
-idx_SP_tdN = find(yExp.Lc < xThreshold);
+idx_SP_tdP = find(yExp.Lt > xThreshold);
+idx_SP_tdN = find(yExp.Lt < xThreshold);
 
 
 %% Define Nominal System
@@ -92,7 +92,7 @@ idx_SP_tdN = find(yExp.Lc < xThreshold);
 links = systemDef_PETER_nominal_reduced("nSeg", nSeg, "usedTendons", usedTendons);
 MBSim = MBSimulation(links, "displayInfo", false);
 
-[IMUDef, cableDef, IMUParams] = definePETEROutputs(links);
+[IMUDef, tendonDef, IMUParams] = definePETEROutputs(links);
 
 % Temp tendon friction parameters
 %MBSim.MBSys.frameData.d_c_s = ones(1,MBSim.MBSys.nFrames)*1e-3*1e-10;
@@ -106,7 +106,7 @@ MBSysSym = MBSystemSym(links);
 IDSystemNum = struct;
 IDSystemNum.MBSys    = MBSysOpt;
 IDSystemNum.IMUDef   = IMUDef;
-IDSystemNum.cableDef = cableDef;
+IDSystemNum.tendonDef = tendonDef;
 
 IDSystemSym = IDSystemNum;
 IDSystemSym.MBSys = MBSysSym;
@@ -114,10 +114,10 @@ IDSystemSym.MBSys = MBSysSym;
 
 %% Initial guess: Simulate with measured system inputs
 
-[qSim, ySim, LcOffsetSim] = computeSetPointEqulibria(MBSim, uSP, IMUDef, cableDef);
-ySim.Lc = ySim.Lc - LcOffsetSim;
+[qSim, ySim, LtOffsetSim] = computeSetPointEqulibria(MBSim, uSP, IMUDef, tendonDef);
+ySim.Lt = ySim.Lt - LtOffsetSim;
 
-%ySim.Lc = ySim.Lc*1.1;
+%ySim.Lt = ySim.Lt*1.1;
 
 % Plot nominal outputs
 fh = plotStaticSystemOutputComparison(yExp, ySim, "Exp", "Sim Nominal");
@@ -170,7 +170,7 @@ opti = casadi.Opti;
 calibrationOnly = true;
 
 [IDSystemNLP, IDVars, pVectors] = getParamIDMBSys( ...
-    opti, false, calibrationOnly, IDSystemSym, LcOffsetSim);
+    opti, false, calibrationOnly, IDSystemSym, LtOffsetSim);
 
 paramVecNLP = pVectors.NLPVar;
 
@@ -201,15 +201,15 @@ wY = opti.parameter(3);
 wR = opti.parameter(1);
 
 
-%yLcOffset_NLP = IDVars.LcScale.NLPVar*(yNLP.Lc - IDVars.LcOffset.NLPVar);
-yLcOffset_NLP_N = IDVars.LcScaleN.NLPVar .* (yNLP.Lc - IDVars.LcOffset.NLPVar);
-yLcOffset_NLP_P = IDVars.LcScaleP.NLPVar .* (yNLP.Lc - IDVars.LcOffset.NLPVar);
+%yLtOffset_NLP = IDVars.LtScale.NLPVar*(yNLP.Lt - IDVars.LtOffset.NLPVar);
+yLtOffset_NLP_N = IDVars.LtScaleN.NLPVar .* (yNLP.Lt - IDVars.LtOffset.NLPVar);
+yLtOffset_NLP_P = IDVars.LtScaleP.NLPVar .* (yNLP.Lt - IDVars.LtOffset.NLPVar);
 
 fStat = ...
     wY(1) * sumsqr(yNLP.IMUAcc1-squeeze(yExp.Acc(:,1,:))) ...
     + wY(2) * sumsqr(yNLP.IMUAcc2-squeeze(yExp.Acc(:,2,:))) ...
-    + wY(3) * sumsqr(yLcOffset_NLP_N(idx_SP_tdN)-yExp.Lc(idx_SP_tdN)) ...
-    + wY(3) * sumsqr(yLcOffset_NLP_P(idx_SP_tdP)-yExp.Lc(idx_SP_tdP));
+    + wY(3) * sumsqr(yLtOffset_NLP_N(idx_SP_tdN)-yExp.Lt(idx_SP_tdN)) ...
+    + wY(3) * sumsqr(yLtOffset_NLP_P(idx_SP_tdP)-yExp.Lt(idx_SP_tdP));
 
 % Regulation term
 fR = wR * sumsqr( pVectors.fr .* (paramVecNLP - pVectors.iv));
@@ -234,8 +234,8 @@ opti.set_initial(q_NLP, qSim);
 % Weights
 % Roughly normalize scales of all outputs
 sYAcc = 1/max(abs(yExp.Acc(:)));
-sYLc  = 1/max(abs(yExp.Lc(:)));
-sVec = [sYAcc,sYAcc,sYLc];
+sYLt  = 1/max(abs(yExp.Lt(:)));
+sVec = [sYAcc,sYAcc,sYLt];
 
 opti.set_value(wY, [1,1,1].*sVec*1e0);
 opti.set_value(wR, 0.001);
@@ -262,21 +262,21 @@ sol = opti.solve();
 GET_DEBUG_VALUE = false; % Set to true if solution failed
 
 if GET_DEBUG_VALUE
-    solLcOffset = opti.debug.value(IDVars.LcOffset.NLPVar);
+    solLtOffset = opti.debug.value(IDVars.LtOffset.NLPVar);
     ySolIMUAcc1 = opti.debug.value(yNLP.IMUAcc1);
     ySolIMUAcc2 = opti.debug.value(yNLP.IMUAcc2);
-    ySolLcP      = opti.debug.value(yLcOffset_NLP_P);
-    ySolLcN      = opti.debug.value(yLcOffset_NLP_N);
+    ySolLtP      = opti.debug.value(yLtOffset_NLP_P);
+    ySolLtN      = opti.debug.value(yLtOffset_NLP_N);
 else
-    solLcOffset = sol.value(IDVars.LcOffset.NLPVar); % ,opti.initial());
+    solLtOffset = sol.value(IDVars.LtOffset.NLPVar); % ,opti.initial());
     ySolIMUAcc1 = sol.value(yNLP.IMUAcc1);
     ySolIMUAcc2 = sol.value(yNLP.IMUAcc2);
-    ySolLcP      = sol.value(yLcOffset_NLP_P);
-    ySolLcN      = sol.value(yLcOffset_NLP_N);
+    ySolLtP      = sol.value(yLtOffset_NLP_P);
+    ySolLtN      = sol.value(yLtOffset_NLP_N);
 end
 
-ySolLc = ySolLcP;
-ySolLc(idx_SP_tdN) = ySolLcN(idx_SP_tdN);
+ySolLt = ySolLtP;
+ySolLt(idx_SP_tdN) = ySolLtN(idx_SP_tdN);
 
 % Check outputs of the initial guess
 %sol.value(opti.initial())
@@ -284,7 +284,7 @@ ySolLc(idx_SP_tdN) = ySolLcN(idx_SP_tdN);
 % Assign to output struct
 yOpt = struct();
 yOpt.Acc = cat(2, reshape(ySolIMUAcc1, 3, 1, []), reshape(ySolIMUAcc2, 3, 1, []));
-yOpt.Lc  = ySolLc;
+yOpt.Lt  = ySolLt;
 
 
 fh = plotStaticSystemOutputComparison(yExp, yOpt, "Exp", "Opt");
@@ -323,14 +323,14 @@ for iVar = 1:length(IDVarFields)
     disp(paramsRel.(pName).');
 end
 
-paramsRel.LcOffset = solLcOffset;
+paramsRel.LtOffset = solLtOffset;
 
 %% Get numeric MBSystem with identified parameters
 
 IDSystemOpt = getMBSysParamsFromIDVars(IDSystemNum, IDSystemNLP, sol);
 
 MBSysOpt    = IDSystemOpt.MBSys;
-cableDefOpt = IDSystemOpt.cableDef;
+tendonDefOpt = IDSystemOpt.tendonDef;
 IMUDefOpt   = IDSystemOpt.IMUDef;
 
 %% Validation simulation with identified parameters
@@ -338,8 +338,8 @@ IMUDefOpt   = IDSystemOpt.IMUDef;
 MBSimVal = MBSim;
 MBSimVal.MBSys = IDSystemOpt.MBSys;
 
-[qVal, yVal, LcOffsetVal] = computeSetPointEqulibria(MBSimVal, uSP, IMUDefOpt, cableDefOpt);
-yVal.Lc = yVal.Lc - solLcOffset;
+[qVal, yVal, ~] = computeSetPointEqulibria(MBSimVal, uSP, IMUDefOpt, tendonDefOpt);
+yVal.Lt = yVal.Lt - solLtOffset;
 
 fh = plotStaticSystemOutputComparison(yExp, yVal, "Exp", "Opt/Val");
 fh.Name = "Val Outputs / Setpoints";
@@ -357,7 +357,7 @@ saveFileName = sprintf("IDParams_static_%s_nSeg_%d", string(datetime, 'yyMMdd_HH
 disp("Saving results...")
 fprintf("Filename: %s\n", saveFileName);
 
-save(fullfile(saveFolder,saveFileName), "MBSysOpt", "IMUDefOpt", "cableDefOpt", "paramsRel", "links");
+save(fullfile(saveFolder,saveFileName), "MBSysOpt", "IMUDefOpt", "tendonDefOpt", "paramsRel", "links");
 
 
 %% End script

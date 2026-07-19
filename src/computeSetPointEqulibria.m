@@ -1,16 +1,16 @@
-function [qSim, ySim, LcOffsetSim] = computeSetPointEqulibria(MBSim, uSP, IMUDef, cableDef)
+function [qSim, ySim, LtOffsetSim] = computeSetPointEqulibria(MBSim, uSP, IMUDef, tendonDef)
     %% Compute static equilibria and system outputs for set of tendon tensions
     arguments
         MBSim       (1,1) MBSimulation
         uSP         (:,:) double
         IMUDef      (1,1) MBSysIMUOutputDefinition
-        cableDef    (1,1) MBSysTendonLengthOutputDefinition
+        tendonDef   (1,1) MBSysTendonLengthOutputDefinition
     end
 
     nSetpoints = size(uSP,2);
 
     ySim = struct;
-    ySim.Lc  = zeros(cableDef.nCables, nSetpoints);
+    ySim.Lt  = zeros(tendonDef.nTendons, nSetpoints);
     nIMUs = length(IMUDef.s);
     ySim.Acc = zeros(3, nIMUs, nSetpoints);
 
@@ -44,21 +44,21 @@ function [qSim, ySim, LcOffsetSim] = computeSetPointEqulibria(MBSim, uSP, IMUDef
             MBSim.MBSys, IMUDef, ...
             qEqu, qEqu, qEqu, gEqu, gEqu, gEqu, 1);
 
-        ySim.Lc(:,iSP) = computeTendonLengthSystemOutput( ...
-            MBSim.MBSys, cableDef, qEqu);
+        ySim.Lt(:,iSP) = computeTendonLengthSystemOutput( ...
+            MBSim.MBSys, tendonDef, qEqu);
     end
     fprintf("\n");
 
 
-    % Cable length offset with zero inputs
+    % Tendon length offset with zero inputs
     disp("Computing reference equilibrium (zero inputs)...")
     [qEqu_u0, fval, exitflag, output] = fsolve( ...
         @(q) computeStaticResiduum(MBSim.MBSys, MBSim.simPars, q, zeros(MBSim.MBSys.nInputs,1)), ...
         zeros(MBSim.MBSys.nDoF,1), opts ...
         );
-    LcOffsetSim = computeTendonLengthSystemOutput( ...
-        MBSim.MBSys, cableDef, qEqu_u0);
+    LtOffsetSim = computeTendonLengthSystemOutput( ...
+        MBSim.MBSys, tendonDef, qEqu_u0);
 
-    %LcOffsetSim = ySim.Lc(:,1)*0+ links.L;
-    %ySim.Lc = ySim.Lc - LcOffsetSim;
+    %LtOffsetSim = ySim.Lt(:,1)*0+ links.L;
+    %ySim.Lt = ySim.Lt - LtOffsetSim;
 end

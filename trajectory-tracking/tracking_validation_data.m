@@ -20,10 +20,10 @@ SIMULATE_ODE_SOLVER = 0;
 plotSaveDir = fullfile(getRepositoryRootFolder, "results", "tracking");
 
 % Accelerometer calibration file
-accCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", "IMUCalib_260717_1307");
+accCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", "IMUCalib_260719_1229");
 
 % Identified system model
-modelParameterFile = fullfile(getRepositoryRootFolder, "data", "identification", "IDParams_static_260717_1309_nSeg_12");
+modelParameterFile = fullfile(getRepositoryRootFolder, "data", "identification", "IDParams_static_260719_1231_nSeg_12");
 
 % Trajectory test
 dataFolderDyn = fullfile(getRepositoryRootFolder, "data", "experiments", "raw");
@@ -92,32 +92,32 @@ links = systemDef_PETER_nominal_reduced("nSeg", 8, ...
 MBSim = MBSimulation(links, "displayInfo", false);
 if 1
     % Nominal system
-    %[IMUDef, cableDef] = definePETEROutputs(links);
+    %[IMUDef, tendonDef] = definePETEROutputs(links);
     MBSys = MBSim.MBSys;
     MBSysSym = MBSystemSym(links);
 
-    IDstruct.paramsRel.LcScaleP = 1;
-    IDstruct.paramsRel.LcScaleN = 1;
-    IDstruct.paramsRel.LcOffset = ones(MBSys.nInputs,1)*0.68;
+    IDstruct.paramsRel.LtScaleP = 1;
+    IDstruct.paramsRel.LtScaleN = 1;
+    IDstruct.paramsRel.LtOffset = ones(MBSys.nInputs,1)*0.68;
 else
     % Load full system from identification
     IDstruct = load(modelParameterFile);
     MBSys    = IDstruct.MBSysOpt;
     MBSysSym = MBSystemNum2MBSystemSym(MBSys);
     IMUDef = IDstruct.IMUDefOpt;
-    cableDef = IDstruct.cableDefOpt;
+    tendonDef = IDstruct.tendonDefOpt;
     MBSim.MBSys = MBSys;
 end
 
 % Load output definition from identification
 IDstructExp = load(modelParameterFile);
 IMUDef = IDstructExp.IMUDefOpt;
-cableDef = IDstructExp.cableDefOpt;
+tendonDef = IDstructExp.tendonDefOpt;
 
 IDSystemNum = struct;
 IDSystemNum.MBSys    = MBSys;
 IDSystemNum.IMUDef   = IMUDef;
-IDSystemNum.cableDef = cableDef;
+IDSystemNum.tendonDef = tendonDef;
 
 IDSystemSym = IDSystemNum;
 IDSystemSym.MBSys = MBSysSym;
@@ -155,27 +155,27 @@ MBSim = MBSim.simulateSystem;
 
 % Compute system outputs
 disp("Computing simulation outputs...")
-[ySimDyn, LcOffsetSimDyn]  = computeSystemOutputsSim(MBSim, IMUDef, cableDef, "useTendonLengthOffset", false);
+[ySimDyn, ~]  = computeSystemOutputsSim(MBSim, IMUDef, tendonDef, "useTendonLengthOffset", false);
 
 % Plot outputs
 %fhs = plotSystemOutputs(ySim, "Sim");
 
 % Adjust tendon lengths in simulation data
-IDstruct.paramsRel.LcOffset = ySimDyn.Lc(:,350) - yExpDyn.Lc(:,350);
+IDstruct.paramsRel.LtOffset = ySimDyn.Lt(:,350) - yExpDyn.Lt(:,350);
 
 
-ySimDyn_Lc_P = IDstructExp.paramsRel.LcScaleP .* (ySimDyn.Lc - IDstruct.paramsRel.LcOffset);
-ySimDyn_Lc_N = IDstructExp.paramsRel.LcScaleN .* (ySimDyn.Lc - IDstruct.paramsRel.LcOffset);
-ySimDyn.Lc(ySimDyn.Lc > 0) = ySimDyn_Lc_P(ySimDyn.Lc > 0);
-ySimDyn.Lc(ySimDyn.Lc < 0) = ySimDyn_Lc_N(ySimDyn.Lc < 0);
+ySimDyn_Lt_P = IDstructExp.paramsRel.LtScaleP .* (ySimDyn.Lt - IDstruct.paramsRel.LtOffset);
+ySimDyn_Lt_N = IDstructExp.paramsRel.LtScaleN .* (ySimDyn.Lt - IDstruct.paramsRel.LtOffset);
+ySimDyn.Lt(ySimDyn.Lt > 0) = ySimDyn_Lt_P(ySimDyn.Lt > 0);
+ySimDyn.Lt(ySimDyn.Lt < 0) = ySimDyn_Lt_N(ySimDyn.Lt < 0);
 
 
 % Compute outputs from OCP
-[yOCP, LcOffsetOCP]  = computeSystemOutputsSim(OCPData.MBSimCasadi, IMUDef, cableDef, "useTendonLengthOffset", false);
-yOCP_Lc_P = IDstructExp.paramsRel.LcScaleP .* (yOCP.Lc - IDstruct.paramsRel.LcOffset);
-yOCP_Lc_N = IDstructExp.paramsRel.LcScaleN .* (yOCP.Lc - IDstruct.paramsRel.LcOffset);
-yOCP.Lc(yOCP.Lc > 0) = yOCP_Lc_P(yOCP.Lc > 0);
-yOCP.Lc(yOCP.Lc < 0) = yOCP_Lc_N(yOCP.Lc < 0);
+[yOCP, ~]  = computeSystemOutputsSim(OCPData.MBSimCasadi, IMUDef, tendonDef, "useTendonLengthOffset", false);
+yOCP_Lt_P = IDstructExp.paramsRel.LtScaleP .* (yOCP.Lt - IDstruct.paramsRel.LtOffset);
+yOCP_Lt_N = IDstructExp.paramsRel.LtScaleN .* (yOCP.Lt - IDstruct.paramsRel.LtOffset);
+yOCP.Lt(yOCP.Lt > 0) = yOCP_Lt_P(yOCP.Lt > 0);
+yOCP.Lt(yOCP.Lt < 0) = yOCP_Lt_N(yOCP.Lt < 0);
 yOCP.tout = yOCP.tout + tOffsetOCP;
 
 % Comparisons
@@ -531,10 +531,10 @@ if CREATE_INDIV_PLOTS
         "TileSpacing", "tight", "Padding", "tight");
     for iAxis = 1:size(tensionsExpDyn,2)
         ax = nexttile;
-        plot(yExpDyn.tout-tOffsetOCP, yExpDyn.Lc(iAxis,:)*1e3, "-", ...
+        plot(yExpDyn.tout-tOffsetOCP, yExpDyn.Lt(iAxis,:)*1e3, "-", ...
             "LineWidth", plotLineWidth);
         hold on;
-        plot(yOCP.tout-tOffsetOCP, yOCP.Lc(iAxis,:)*1e3, "-", ...
+        plot(yOCP.tout-tOffsetOCP, yOCP.Lt(iAxis,:)*1e3, "-", ...
             "LineWidth", plotLineWidth);
         grid on;
         ylabel(sprintf("$\\Delta L_%d$ in mm", iAxis), "Interpreter", "latex");

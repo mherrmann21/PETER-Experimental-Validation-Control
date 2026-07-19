@@ -31,7 +31,7 @@ usedTendons = [1,2,3];
 expData = load(fullfile(dataFolder, dataFileName));
 
 yExp = struct();
-yExp.Lc = expData.yLc(usedTendons,:);
+yExp.Lt = expData.yLt(usedTendons,:);
 yExp.Acc = expData.yAcc;
 
 uSP = expData.u(usedTendons,:);
@@ -41,19 +41,18 @@ uMin = 0;
 idxSetpoints = vecnorm(uSP, 2, 1) > uMin;
 %idxSetpoints = [1:12, 23:22+12, 45:44+12];
 
-yExp.Lc  = yExp.Lc(:, idxSetpoints);
+yExp.Lt  = yExp.Lt(:, idxSetpoints);
 yExp.Acc = yExp.Acc(:, :, idxSetpoints);
 uSP      = uSP(:, idxSetpoints);
 
 nIMUs      = size(yExp.Acc,2);
 nSetpoints = size(uSP,2);
-nCables = length(usedTendons);
 
 % Plot setpoint data
 figure("Name", "Setpoint values");
 tiledlayout;
 nexttile;
-plot(1:nSetpoints, yExp.Lc, "-o");
+plot(1:nSetpoints, yExp.Lt, "-o");
 grid on;
 title("Tendon displacement")
 xlabel("Setpoint Nr.")

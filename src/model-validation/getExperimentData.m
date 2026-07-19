@@ -135,7 +135,7 @@ function [tensionsDS, yExp] = getExperimentData(fileName, tout, opts)
         xlabel("frequency $f$ in Hz", "Interpreter", "latex");
         ylabel("signal amplitude", "Interpreter", "latex");
         title("Comparison Measured and Preprocessed Data");
-        legend(arrayfun(@(x) sprintf("cable %d", x), 1:4),"Interpreter", "latex");
+        legend(arrayfun(@(x) sprintf("tendon %d", x), 1:4),"Interpreter", "latex");
     end
 
     %% Plot IMU FFTs (with raw data)

@@ -1,15 +1,15 @@
-function [IMUDef, cableDef, IMUParams] = definePETEROutputs(link)
+function [IMUDef, tendonDef, IMUParams] = definePETEROutputs(link)
     %% Define System outputs for PETER measurements
     arguments
         link (1,1) MBLinkDefinition
     end
 
-    %% Define cable outputs
+    %% Define tendon outputs
 
     % Disk arc length positions
     sDisks = [0, linspace(0.042,0.639,13), 0.685];
 
-    cableDef = MBSysTendonLengthOutputDefinition(link.cableConfig, sDisks);
+    tendonDef = MBSysTendonLengthOutputDefinition(link.cableConfig, sDisks);
 
 
     %% Define IMU outputs

@@ -1,10 +1,10 @@
-function yLc = computeTendonLengthSystemOutput_casadi(MBSys, cableDef,...
+function yLt = computeTendonLengthSystemOutput_casadi(MBSys, tendonDef,...
         q, g_rel)
     %% Compute the outputs of a system in one time step
     arguments
         MBSys       (1,1) MBSystemSym
 
-        cableDef    (1,1) MBSysTendonLengthOutputDefinition
+        tendonDef   (1,1) MBSysTendonLengthOutputDefinition
 
         % Coordinates and joint transformations
         q         (:,1)
@@ -13,21 +13,21 @@ function yLc = computeTendonLengthSystemOutput_casadi(MBSys, cableDef,...
 
     %% Compute tendon lengths
 
-    %%% TODO: The output cable length vector currently always has
+    %%% TODO: The output tendon length vector currently always has
     %%% dimensions of overall nr. of inputs (possibly including joint
     %%% actuation), so it only properly works with single-link continuum
     %%% manipulators right now
 
-    if cableDef.isDiscrete
-        yLc = computeTendonLengthsDiscrete(MBSys, cableDef, q, g_rel);
+    if tendonDef.isDiscrete
+        yLt = computeTendonLengthsDiscrete(MBSys, tendonDef, q, g_rel);
     else
-        yLc = computeTendonLengthsContinuous(MBSys, g_rel);
+        yLt = computeTendonLengthsContinuous(MBSys, g_rel);
     end
 
 end
 
 
-function l_c_k = computeTendonLengthsContinuous(MBSys, g_rel)
+function l_t_k = computeTendonLengthsContinuous(MBSys, g_rel)
     %% Compute tendon lengths assuming continuous routing along the backbone
     arguments
         MBSys   (1,1) MBSystem
@@ -36,36 +36,36 @@ function l_c_k = computeTendonLengthsContinuous(MBSys, g_rel)
 
     f = getSE3Functions(g_rel.x);
 
-    l_c_k = zeros(MBSys.nInputs, 1);
+    l_t_k = zeros(MBSys.nInputs, 1);
 
     for iFrm = 1:MBSys.nFrames
         uIndices = MBSys.frameData.getUIndices(iFrm);
 
         if MBSys.frameData.jointType(iFrm) == 2
-            % Flexible joint (multiple cable inputs)
+            % Flexible joint (multiple tendon inputs)
             % l = MBSys.frameData.l(iFrm);
 
-            for iC = 1:length(uIndices)
-                % Cable configurations at adjacent nodes
-                g_cm_i1 = SE3(f.eye(3), MBSys.frameData.x_cm(:,1,iFrm,iC));
-                g_cm_i2 = SE3(f.eye(3), MBSys.frameData.x_cm(:,2,iFrm,iC));
+            for iT = 1:length(uIndices)
+                % Tendon configurations at adjacent nodes
+                g_tm_i1 = SE3(f.eye(3), MBSys.frameData.x_cm(:,1,iFrm,iT));
+                g_tm_i2 = SE3(f.eye(3), MBSys.frameData.x_cm(:,2,iFrm,iT));
 
-                % Discrete deformation gradient cable routing
-                g_rel_c = g_cm_i1 \ g_rel(iFrm) * g_cm_i2;
-                [~, v_c] = f.cayInvSE3( g_rel_c.R, g_rel_c.x );
+                % Discrete deformation gradient tendon routing
+                g_rel_t = g_tm_i1 \ g_rel(iFrm) * g_tm_i2;
+                [~, v_t] = f.cayInvSE3( g_rel_t.R, g_rel_t.x );
 
-                l_c_k(uIndices(iC)) = l_c_k(uIndices(iC)) + vecnorm( v_c );
+                l_t_k(uIndices(iT)) = l_t_k(uIndices(iT)) + vecnorm( v_t );
             end
         end
     end
 end
 
-function Lc = computeTendonLengthsDiscrete(MBSys, cableDef, q, g_rel)
+function Lt = computeTendonLengthsDiscrete(MBSys, tendonDef, q, g_rel)
     %% Compute tendon lengths assuming routing via discrete spacer disks
     % adapted code from Leander Pfeiffer
     arguments
         MBSys    (1,1) MBSystem
-        cableDef (1,1) MBSysTendonLengthOutputDefinition
+        tendonDef (1,1) MBSysTendonLengthOutputDefinition
         q        (:,1)
         g_rel    (:,1) SE3
     end
@@ -73,9 +73,9 @@ function Lc = computeTendonLengthsDiscrete(MBSys, cableDef, q, g_rel)
     f.eye   = @casadi.MX.eye;
     f.zeros = @casadi.MX.zeros;
 
-    nDisks  = cableDef.nDisks;
-    nCables = cableDef.nCables;
-    Lc = f.zeros(nCables, 1);
+    nDisks   = tendonDef.nDisks;
+    nTendons = tendonDef.nTendons;
+    Lt = f.zeros(nTendons, 1);
 
     % Check whether the beam discretization corresponds to spacer disk
     % distribution or not
@@ -91,7 +91,7 @@ function Lc = computeTendonLengthsDiscrete(MBSys, cableDef, q, g_rel)
         sFrames = [0; cumsum(MBSys.frameData.l)];
 
         % Positions of the spacer disks (including first fixed disk)
-        sDisks = cableDef.sDisks;
+        sDisks = tendonDef.sDisks;
         lDisks = diff(sDisks);
 
         g_disks_rel = createArray(nDisks, 1, "SE3");
@@ -111,22 +111,22 @@ function Lc = computeTendonLengthsDiscrete(MBSys, cableDef, q, g_rel)
         end
     end
 
-    % Compute cable length
+    % Compute tendon length
     % For each spacer disk, we compute the length of the PRECEDING segment
     for iDiskSeg = 1:(nDisks-1)
         %if MBSys.frameData.jointType(iFrm) == 2
-        % Flexible joint (multiple cable inputs)
+        % Flexible joint (multiple tendon inputs)
         % l = MBSys.frameData.l(iFrm);
-        for iC = 1:nCables
+        for iT = 1:nTendons
             % Transformation from the contact point of the segment's
             % first disk to the contact point of the frame's second
             % disk
-            g_cm_i1 = cableDef.g_cm_SE3(1,iDiskSeg,iC);
-            g_cm_i2 = cableDef.g_cm_SE3(2,iDiskSeg,iC);
+            g_tm_i1 = tendonDef.g_tm_SE3(1,iDiskSeg,iT);
+            g_tm_i2 = tendonDef.g_tm_SE3(2,iDiskSeg,iT);
 
-            g_cm_12 = g_cm_i1 \ g_disks_rel(iDiskSeg) * g_cm_i2;
+            g_tm_12 = g_tm_i1 \ g_disks_rel(iDiskSeg) * g_tm_i2;
 
-            Lc(iC) = Lc(iC) + norm( g_cm_12.x );
+            Lt(iT) = Lt(iT) + norm( g_tm_12.x );
         end
         %end
     end

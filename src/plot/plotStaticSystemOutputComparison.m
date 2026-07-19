@@ -15,8 +15,7 @@ function fhs = plotStaticSystemOutputComparison(yA, yB, nameA, nameB, opts)
         opts.setPointTensions (:,1) double = [];
     end
 
-    nSetpoints = size(yA.Lc, 2);
-    nCables = size(yA.Lc, 1);
+    nSetpoints = size(yA.Lt, 2);
 
     fhs = figure("NumberTitle", "off", "Name", "Comparison static outputs");
     tiledlayout("TileSpacing", "tight");
@@ -62,21 +61,21 @@ function fhs = plotStaticSystemOutputComparison(yA, yB, nameA, nameB, opts)
 
     %% Tendon displacement
     compColorsL = [
-        brighten(lines(size(yB.Lc,1)), 0.5);
-        brighten(lines(size(yB.Lc,1)), -0.3);
+        brighten(lines(size(yB.Lt,1)), 0.5);
+        brighten(lines(size(yB.Lt,1)), -0.3);
         ];
 
     ax = nexttile;
-    plot(xVals, yA.Lc, "-o");
+    plot(xVals, yA.Lt, "-o");
     hold on;
-    plot(xVals, yB.Lc, "--x");
+    plot(xVals, yB.Lt, "--x");
     grid on;
     title("Tendon displacement", "Interpreter", "latex");
     xlabel(xString, "Interpreter", "latex");
     ylabel("tendon displacement in m", "Interpreter", "latex");
     colororder(ax, compColorsL);
     legend( ...
-        [arrayfun(@(x) sprintf("%s cable %d", nameA, x), 1:size(yA.Lc,1)), ...
-        arrayfun(@(x) sprintf("%s cable %d", nameB, x), 1:size(yA.Lc,1))]);
+        [arrayfun(@(x) sprintf("%s tendon %d", nameA, x), 1:size(yA.Lt,1)), ...
+        arrayfun(@(x) sprintf("%s tendon %d", nameB, x), 1:size(yA.Lt,1))]);
 
 end

@@ -1,4 +1,4 @@
-function [y, LcOffset]  = computeSystemOutputsSim(MBSim, IMUDef, cableDef, opts)
+function [y, LtOffset]  = computeSystemOutputsSim(MBSim, IMUDef, tendonDef, opts)
     %% Compute system outputs for a full simulation
     %
     % Maximilian Herrmann
@@ -12,8 +12,8 @@ function [y, LcOffset]  = computeSystemOutputsSim(MBSim, IMUDef, cableDef, opts)
         % IMU definition
         IMUDef          (1,1) MBSysIMUOutputDefinition
 
-        % Cable output definition
-        cableDef        (1,1) MBSysTendonLengthOutputDefinition
+        % Tendon output definition
+        tendonDef       (1,1) MBSysTendonLengthOutputDefinition
 
         % Whether to use the absolute tendon length (= false) or the offset
         % from the initial length as the tendon length measurement/output
@@ -21,12 +21,12 @@ function [y, LcOffset]  = computeSystemOutputsSim(MBSim, IMUDef, cableDef, opts)
     end
 
     nIMUs   = length(IMUDef.s);
-    nCables = cableDef.nCables;
+    nTendons = tendonDef.nTendons;
     nSteps  = length(MBSim.simRes.tout)-1;
 
     yIMUAcc = zeros(3, nIMUs, nSteps);
     yIMUGyr = zeros(3, nIMUs, nSteps);
-    yLc     = zeros(nCables, nSteps);
+    yLt     = zeros(nTendons, nSteps);
 
     for iStep = 1:nSteps
         %eta_k = MBSim.simRes.eta(:,:,iStep);
@@ -48,20 +48,20 @@ function [y, LcOffset]  = computeSystemOutputsSim(MBSim, IMUDef, cableDef, opts)
             MBSim.MBSys, IMUDef, ...
             q_k, q_k0, q_k1, g_k, g_k0, g_k1, hStep);
 
-        yLc(:,iStep) = computeTendonLengthSystemOutput( ...
-            MBSim.MBSys, cableDef, q_k);
+        yLt(:,iStep) = computeTendonLengthSystemOutput( ...
+            MBSim.MBSys, tendonDef, q_k);
     end
 
     % Compute offset from initial length
-    LcOffset = yLc(:,1);
+    LtOffset = yLt(:,1);
     if opts.useTendonLengthOffset
-        yLc = yLc - LcOffset;
+        yLt = yLt - LtOffset;
     end
 
     % Assign to output struct
     y = struct();
     y.IMUAcc = yIMUAcc;
     y.IMUGyr = yIMUGyr;
-    y.Lc     = yLc;
+    y.Lt     = yLt;
     y.tout = MBSim.simRes.tout(1:end-1);
 end

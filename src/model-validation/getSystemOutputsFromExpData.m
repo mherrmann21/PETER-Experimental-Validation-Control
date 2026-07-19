@@ -26,7 +26,7 @@ function y = getSystemOutputsFromExpData(expData, opts)
     yIMUGyr1 = squeeze(expData.IMUData.sensor_1_gyro.Data);
     yIMUAcc2 = squeeze(expData.IMUData.sensor_2_acc.Data);
     yIMUGyr2 = squeeze(expData.IMUData.sensor_2_gyro.Data);
-    yLc      = expData.tendonDisplacementActual_m.Data;
+    yLt      = expData.tendonDisplacementActual_m.Data;
     tout     = expData.tendonDisplacementActual_m.Time - expData.tendonDisplacementActual_m.Time(1) + opts.tShift;
 
 
@@ -43,7 +43,7 @@ function y = getSystemOutputsFromExpData(expData, opts)
         yIMUGyr1 = filtfilt(b, a, yIMUGyr1.').';
         yIMUAcc2 = filtfilt(b, a, yIMUAcc2.').';
         yIMUGyr2 = filtfilt(b, a, yIMUGyr2.').';
-        yLc      = filtfilt(b, a, yLc);
+        yLt      = filtfilt(b, a, yLt);
     end
 
 
@@ -53,7 +53,7 @@ function y = getSystemOutputsFromExpData(expData, opts)
         yIMUGyr1 = interp1(tout, yIMUGyr1.', opts.tVecOutput).';
         yIMUAcc2 = interp1(tout, yIMUAcc2.', opts.tVecOutput).';
         yIMUGyr2 = interp1(tout, yIMUGyr2.', opts.tVecOutput).';
-        yLc      = interp1(tout, yLc     , opts.tVecOutput).';
+        yLt      = interp1(tout, yLt     , opts.tVecOutput).';
         tout = opts.tVecOutput;
     end
 
@@ -62,6 +62,6 @@ function y = getSystemOutputsFromExpData(expData, opts)
     y.yAll = [];
     y.IMUAcc = cat(2, reshape(yIMUAcc1, 3, 1, []), reshape(yIMUAcc2, 3, 1, []));
     y.IMUGyr = cat(2, reshape(yIMUGyr1, 3, 1, []), reshape(yIMUGyr2, 3, 1, []));
-    y.Lc     = yLc;
+    y.Lt     = yLt;
     y.tout   = tout;
 end

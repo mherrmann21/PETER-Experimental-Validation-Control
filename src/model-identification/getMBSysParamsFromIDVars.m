@@ -15,11 +15,11 @@ function IDSystemOpt = getMBSysParamsFromIDVars(IDSystemNum, IDSystemNLP, sol)
 
     MBSysNum    = IDSystemNum.MBSys;
     IMUDefNum   = IDSystemNum.IMUDef;
-    cableDefNum = IDSystemNum.cableDef;
+    tendonDefNum = IDSystemNum.tendonDef;
 
     MBSysNLP    = IDSystemNLP.MBSys;
     IMUDefNLP   = IDSystemNLP.IMUDef;
-    cableDefNLP = IDSystemNLP.cableDef;
+    tendonDefNLP = IDSystemNLP.tendonDef;
 
 
     %% Get parameters
@@ -45,17 +45,17 @@ function IDSystemOpt = getMBSysParamsFromIDVars(IDSystemNum, IDSystemNLP, sol)
     end
 
     % Tendon path configuration
-    for iC = 1:MBSysNum.nInputs
+    for iT = 1:MBSysNum.nInputs
         % Tendon path in framedata
         for iSeg = 1:size(MBSysNLP.frameData.g_cm,2)
-            MBSysNum.frameData.g_cm(:,:,1,iSeg,iC) = sol.value(MBSysNLP.frameData.g_cm(1,iSeg,iC).mat);
-            MBSysNum.frameData.g_cm(:,:,2,iSeg,iC) = sol.value(MBSysNLP.frameData.g_cm(2,iSeg,iC).mat);
+            MBSysNum.frameData.g_cm(:,:,1,iSeg,iT) = sol.value(MBSysNLP.frameData.g_cm(1,iSeg,iT).mat);
+            MBSysNum.frameData.g_cm(:,:,2,iSeg,iT) = sol.value(MBSysNLP.frameData.g_cm(2,iSeg,iT).mat);
         end
 
-        % Tendon path in cabledef
-        for iSeg = 1:size(cableDefNLP.g_cm_SE3,2)
-            cableDefNum.g_cm_Mat(:,:,1,iSeg,iC) = sol.value(cableDefNLP.g_cm_SE3(1,iSeg,iC).mat);
-            cableDefNum.g_cm_Mat(:,:,2,iSeg,iC) = sol.value(cableDefNLP.g_cm_SE3(2,iSeg,iC).mat);
+        % Tendon path in tendonDef
+        for iSeg = 1:size(tendonDefNLP.g_tm_SE3,2)
+            tendonDefNum.g_tm_Mat(:,:,1,iSeg,iT) = sol.value(tendonDefNLP.g_tm_SE3(1,iSeg,iT).mat);
+            tendonDefNum.g_tm_Mat(:,:,2,iSeg,iT) = sol.value(tendonDefNLP.g_tm_SE3(2,iSeg,iT).mat);
         end
     end
 
@@ -64,5 +64,5 @@ function IDSystemOpt = getMBSysParamsFromIDVars(IDSystemNum, IDSystemNLP, sol)
     IDSystemOpt = struct;
     IDSystemOpt.MBSys    = MBSysNum;
     IDSystemOpt.IMUDef   = IMUDefNum;
-    IDSystemOpt.cableDef = cableDefNum;
+    IDSystemOpt.tendonDef = tendonDefNum;
 end

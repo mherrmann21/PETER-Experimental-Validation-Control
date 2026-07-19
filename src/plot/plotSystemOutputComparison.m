@@ -49,24 +49,24 @@ function fhs = plotSystemOutputComparison(yA, yB, nameA, nameB)
         colororder(compColorsIMU);
     end
 
-    %% Cable lengths
+    %% Tendon lengths
 
     compColorsL = [
-        brighten(lines(size(yB.Lc,1)), 0.5);
-        brighten(lines(size(yB.Lc,1)), -0.3);
+        brighten(lines(size(yB.Lt,1)), 0.5);
+        brighten(lines(size(yB.Lt,1)), -0.3);
         ];
 
-    fhs(2) = figure("NumberTitle", "off", "Name", "Comp. Outputs Cable Lengths");
-    plot(yA.tout, yA.Lc, "-.");
+    fhs(2) = figure("NumberTitle", "off", "Name", "Comp. Outputs Tendon Lengths");
+    plot(yA.tout, yA.Lt, "-.");
     hold on;
-    plot(yB.tout, yB.Lc, "-");
-    title("Cable lengths");
+    plot(yB.tout, yB.Lt, "-");
+    title("Tendon lengths");
     grid on;
     xlabel("time $t$ in s", "Interpreter", "latex");
-    ylabel("cable length in m", "Interpreter", "latex");
+    ylabel("tendon length in m", "Interpreter", "latex");
     legend( ...
-        [arrayfun(@(x) sprintf("%s cable %d", nameA, x), 1:size(yA.Lc,1)), ...
-        arrayfun(@(x) sprintf("%s cable %d", nameB, x), 1:size(yA.Lc,1))]);
+        [arrayfun(@(x) sprintf("%s tendon %d", nameA, x), 1:size(yA.Lt,1)), ...
+        arrayfun(@(x) sprintf("%s tendon %d", nameB, x), 1:size(yA.Lt,1))]);
     colororder(compColorsL);
 
 end

@@ -22,7 +22,7 @@ function [c_Equ, y] = prepareStaticEquVarsParamID(IDSystemNLP, simPars, ...
     % Get system objects
     MBSys    = IDSystemNLP.MBSys;
     IMUDef   = IDSystemNLP.IMUDef;
-    cableDef = IDSystemNLP.cableDef;
+    tendonDef = IDSystemNLP.tendonDef;
 
     nSetpoints = size(u, 2);
 
@@ -39,12 +39,12 @@ function [c_Equ, y] = prepareStaticEquVarsParamID(IDSystemNLP, simPars, ...
     [~, y_IMU_acc] = computeIMUSystemOutput_casadi(MBSys, IMUDef,...
         qSym, qSym, qSym, gSym, gSym, gSym, h);
 
-    yLc = computeTendonLengthSystemOutput_casadi(MBSys, cableDef,...
+    yLt = computeTendonLengthSystemOutput_casadi(MBSys, tendonDef,...
         qSym, g_rel_Sym);
 
     setPointFun = casadi.Function('FSP', ...
         {qSym, uSym, paramVecSym}, ...
-        [{res_sym}; y_IMU_acc; {yLc}]);
+        [{res_sym}; y_IMU_acc; {yLt}]);
 
 
     %% Map for all setpoints
@@ -55,14 +55,14 @@ function [c_Equ, y] = prepareStaticEquVarsParamID(IDSystemNLP, simPars, ...
 
         setPointMap = setPointFun.map(nSetpoints, 'thread', 8);
 
-        [cMap_Equ,  yMapIMUAcc1, yMapIMUAcc2, yMapLc] = setPointMap( ...
+        [cMap_Equ,  yMapIMUAcc1, yMapIMUAcc2, yMapLt] = setPointMap( ...
             q, u, repmat(paramVecSym, [1, nSetpoints]) ...
             );
 
         c_Equ = cMap_Equ;
         y.IMUAcc1 = yMapIMUAcc1;
         y.IMUAcc2 = yMapIMUAcc2;
-        y.Lc      = yMapLc;
+        y.Lt      = yMapLt;
 
     else
 
@@ -73,15 +73,15 @@ function [c_Equ, y] = prepareStaticEquVarsParamID(IDSystemNLP, simPars, ...
 
         y.IMUAcc1 = cell(nSetpoints,1);
         y.IMUAcc2 = cell(nSetpoints,1);
-        y.Lc      = cell(nSetpoints,1);
+        y.Lt      = cell(nSetpoints,1);
 
         for k = 1:nSetpoints
-            [c_Equ{k}, y.IMUAcc1{k}, y.IMUAcc2{k},  y.Lc{k}] = setPointFun( ...
+            [c_Equ{k}, y.IMUAcc1{k}, y.IMUAcc2{k},  y.Lt{k}] = setPointFun( ...
                 q(:,k), u(:,k), paramVecSym);
         end
         c_Equ = horzcat(c_Equ{:});
         y.IMUAcc1 = horzcat(y.IMUAcc1{:});
         y.IMUAcc2 = horzcat(y.IMUAcc2{:});
-        y.Lc      = horzcat(y.Lc{:});
+        y.Lt      = horzcat(y.Lt{:});
     end
 end
