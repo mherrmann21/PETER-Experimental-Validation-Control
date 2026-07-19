@@ -22,16 +22,16 @@ TIMING_COMPARISON = 0;
 usedTendons = [1,2,3];
 
 % Plot save folder
-plotSaveDir = fullfile(getRepositoryRootFolder, "results", "validation");
+plotSaveDir = fullfile(getRootFolder, "results", "validation");
 
 % Accelerometer calibration file
-accCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", "IMUCalib_260719_1229");
+accCalibFile = fullfile(getRootFolder, "data", "calibration", "IMUCalib_260719_1229");
 
 % Identified system model
-modelParameterFile = fullfile(getRepositoryRootFolder, "data", "identification", "IDParams_static_260719_1231_nSeg_12");
+modelParameterFile = fullfile(getRootFolder, "data", "identification", "IDParams_static_260719_1231_nSeg_12");
 
 % Dynamic data parameters
-dataFolderDyn = fullfile(getRepositoryRootFolder, "data", "experiments", "raw");
+dataFolderDyn = fullfile(getRootFolder, "data", "experiments", "raw");
 dataFileNameDyn = "251218_1440_id_data_dynamic.mat";
 tStartOffset = 1.5;
 tEnd = 10;
@@ -39,7 +39,7 @@ tYShift = 0;
 h = 2^-9;
 
 % Static data
-dataFolderStat = fullfile(getRepositoryRootFolder, "data", "experiments", "processed");
+dataFolderStat = fullfile(getRootFolder, "data", "experiments", "processed");
 dataFileNameStat = "251218_1440_id_data_static_tendon_1_setpoints_combined.mat";
 
 

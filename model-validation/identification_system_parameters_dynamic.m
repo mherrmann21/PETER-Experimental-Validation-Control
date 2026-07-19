@@ -20,14 +20,14 @@ SIM_ONLY = false;
 TEST_SYM_FRAMEWORK = false;
 
 % Experimental data
-dataFolder   = fullfile(getRepositoryRootFolder, "data", "experiments", "raw");
+dataFolder   = fullfile(getRootFolder, "data", "experiments", "raw");
 dataFileName = "251105_1732_exp_data.mat";
 
 % IMU calibration data
-accCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", "IMUCalib_260717_1307");
+accCalibFile = fullfile(getRootFolder, "data", "calibration", "IMUCalib_260717_1307");
 
 % Output folder
-saveFolder = fullfile(getRepositoryRootFolder, "data", "identification");
+saveFolder = fullfile(getRootFolder, "data", "identification");
 
 % System and model settings
 usedTendons = 1;

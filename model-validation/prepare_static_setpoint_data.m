@@ -11,13 +11,13 @@ close all
 %% Script settings
 
 % Experiment data folder
-dataFolder = fullfile(getRepositoryRootFolder, "data", "experiments", "raw");
+dataFolder = fullfile(getRootFolder, "data", "experiments", "raw");
 
 % Experiment data file name
 % Run the script for all three tendons!
 dataFileName = "251218_1440_id_data_static_tendon_3.mat";
 
-saveFolder = fullfile(getRepositoryRootFolder, "data", "experiments", "processed");
+saveFolder = fullfile(getRootFolder, "data", "experiments", "processed");
 
 
 %% Load and prepare data

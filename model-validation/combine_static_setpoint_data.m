@@ -2,7 +2,7 @@
 
 %% Script settings
 
-dataFolder = fullfile(getRepositoryRootFolder, "data", "experiments", "processed");
+dataFolder = fullfile(getRootFolder, "data", "experiments", "processed");
 
 dataFileNames = [
     "251218_1440_id_data_static_tendon_1_setpoints.mat"

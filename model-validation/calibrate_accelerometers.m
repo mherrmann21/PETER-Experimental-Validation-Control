@@ -18,10 +18,10 @@ close all
 
 %% Script settings
 
-dataFolder = fullfile(getRepositoryRootFolder, "data", "experiments", "processed");
+dataFolder = fullfile(getRootFolder, "data", "experiments", "processed");
 dataFileName = "251218_1440_id_data_static_tendon_1_setpoints_combined.mat";
 
-saveFolder = fullfile(getRepositoryRootFolder, "data", "calibration");
+saveFolder = fullfile(getRootFolder, "data", "calibration");
 
 usedTendons = [1,2,3];
 

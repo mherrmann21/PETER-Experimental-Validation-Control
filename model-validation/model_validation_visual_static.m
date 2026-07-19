@@ -14,10 +14,10 @@ close all
 SAVE_PLOTS = 1;
 
 % Plot save folder
-plotSaveDir = fullfile(getRepositoryRootFolder, "results", "validation");
+plotSaveDir = fullfile(getRootFolder, "results", "validation");
 
 % Camera calibration file (generated with the MATLAB Computer Vision Toolbox)
-cameraCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", ...
+cameraCalibFile = fullfile(getRootFolder, "data", "calibration", ...
     "camera-params-sony-50mm-3-2-251117-1849.mat");
 
 
@@ -40,7 +40,7 @@ if 1
 
 else
     % Identified system model
-    identifiedModelPath = fullfile(getRepositoryRootFolder, "data", "identification", "IDParams_static_251127_2045_nSeg_8");
+    identifiedModelPath = fullfile(getRootFolder, "data", "identification", "IDParams_static_251127_2045_nSeg_8");
 
     % Load model from identification
     IDstruct = load(identifiedModelPath);

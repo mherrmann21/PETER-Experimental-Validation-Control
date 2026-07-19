@@ -2,7 +2,7 @@ function compSetPoints = photoComparisonDefinition_251218_2()
     %% Define images and setpoints for visual photo/model comparison
 
     uPreTension = 3; % Common pretension
-    imFolder = fullfile(getRepositoryRootFolder, "data", "experiments", "photos", "Statics Identification 251218-2 SPs 6-9-12");
+    imFolder = fullfile(getRootFolder, "data", "experiments", "photos", "Statics Identification 251218-2 SPs 6-9-12");
 
     % Set up definition struct
     %   .imOrientation      0 = landscape, 1 = portrait

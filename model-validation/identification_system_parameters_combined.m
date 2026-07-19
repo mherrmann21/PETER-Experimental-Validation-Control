@@ -15,17 +15,17 @@ close all
 SIM_ONLY = false;
 
 % Experimental data
-dataFolderDyn   = fullfile(getRepositoryRootFolder, "data", "experiments", "raw");
+dataFolderDyn   = fullfile(getRootFolder, "data", "experiments", "raw");
 dataFileNameDyn = "251112_1607_id_data_dynamic.mat";
 
-dataFolderStat   = fullfile(getRepositoryRootFolder, "data", "experiments", "processed");
+dataFolderStat   = fullfile(getRootFolder, "data", "experiments", "processed");
 dataFileNameStat = "251112_1607_id_data_static_tendon_1_setpoints_combined.mat";
 
 % IMU calibration data
-accCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", "IMUCalib_260717_1307");
+accCalibFile = fullfile(getRootFolder, "data", "calibration", "IMUCalib_260717_1307");
 
 % Output folder
-saveFolder = fullfile(getRepositoryRootFolder, "data", "identification");
+saveFolder = fullfile(getRootFolder, "data", "identification");
 
 % System and model settings
 usedTendons = [1,2,3];

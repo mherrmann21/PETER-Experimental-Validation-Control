@@ -22,11 +22,11 @@ saveSnapshots = true;
 useSubPlots = false;
 
 % File with the generated trajectory data
-trajDataFolder   = fullfile(getRepositoryRootFolder, "data", "trajectories");
+trajDataFolder   = fullfile(getRootFolder, "data", "trajectories");
 trajDataFileName = "trajectory_251218_1610_nSeg_8";
 
 % Plot save folder
-plotSaveDir = fullfile(getRepositoryRootFolder, "results", "tracking");
+plotSaveDir = fullfile(getRootFolder, "results", "tracking");
 
 %%% Image/video data
 % fileNameCalibImage: High-resolution image used to estimate the camera/robot pose
@@ -39,7 +39,7 @@ plotSaveDir = fullfile(getRepositoryRootFolder, "results", "tracking");
 %           * should be larger than tStart
 %           * if the reference trajectory is ahead of the video trajectory,
 %             increase tOffset
-imageFolder = fullfile(getRepositoryRootFolder, "data", "experiments", "photos", "Trajectory Tracking 251218_1639");
+imageFolder = fullfile(getRootFolder, "data", "experiments", "photos", "Trajectory Tracking 251218_1639");
 fileNameCalibImage = "251218_1639_tracking_refImage.JPG";
 fileNameVideo      = "251218_1639_tracking_video.MTS";
 tOffset = 11.96;
@@ -50,7 +50,7 @@ tEnd    = 17.3;
 %% Load camera calibration
 
 % Camera calibration file (generated with the MATLAB Computer Vision Toolbox)
-cameraCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", ...
+cameraCalibFile = fullfile(getRootFolder, "data", "calibration", ...
     "camera-params-sony-50mm-16-9-251212-1520.mat");
 
 data = load(cameraCalibFile);

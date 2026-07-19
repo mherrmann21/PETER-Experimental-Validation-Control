@@ -16,7 +16,7 @@ close all
 COMPUTE_IG = 1;
 
 % Where to save the generated trajectory
-saveFolder = fullfile(getRepositoryRootFolder, "data", "trajectories");
+saveFolder = fullfile(getRootFolder, "data", "trajectories");
 
 
 %% Define System

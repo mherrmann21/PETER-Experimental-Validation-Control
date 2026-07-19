@@ -17,16 +17,16 @@ CREATE_INDIV_PLOTS = true;
 SIMULATE_ODE_SOLVER = 0;
 
 % Plot save folder
-plotSaveDir = fullfile(getRepositoryRootFolder, "results", "tracking");
+plotSaveDir = fullfile(getRootFolder, "results", "tracking");
 
 % Accelerometer calibration file
-accCalibFile = fullfile(getRepositoryRootFolder, "data", "calibration", "IMUCalib_260719_1229");
+accCalibFile = fullfile(getRootFolder, "data", "calibration", "IMUCalib_260719_1229");
 
 % Identified system model
-modelParameterFile = fullfile(getRepositoryRootFolder, "data", "identification", "IDParams_static_260719_1231_nSeg_12");
+modelParameterFile = fullfile(getRootFolder, "data", "identification", "IDParams_static_260719_1231_nSeg_12");
 
 % Trajectory test
-dataFolderDyn = fullfile(getRepositoryRootFolder, "data", "experiments", "raw");
+dataFolderDyn = fullfile(getRootFolder, "data", "experiments", "raw");
 dataFileNameDyn = "251218_1639_tracking_exp_data.mat";
 tStartOffset = 5;
 tEnd = 6;
@@ -35,7 +35,7 @@ usedTendons = [1,2,3];
 h = 2^-9;
 
 % File with the generated trajectory data
-trajDataFile = fullfile(getRepositoryRootFolder, "data", "trajectories", "trajectory_251218_1610_nSeg_8");
+trajDataFile = fullfile(getRootFolder, "data", "trajectories", "trajectory_251218_1610_nSeg_8");
 
 
 %% Load dynamic experiment data
