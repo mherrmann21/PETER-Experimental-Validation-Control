@@ -1,8 +1,8 @@
-[![GitHub top language](https://img.shields.io/github/languages/top/mherrmann21/PETER-Experimental-Validation-Control)](https://matlab.mathworks.com/)
-![GitHub Repo stars](https://img.shields.io/github/stars/mherrmann21/PETER-Experimental-Validation-Control?style=social)
+[![MATLAB](https://img.shields.io/badge/language-MATLAB-blue.svg)](https://www.mathworks.com/products/matlab.html)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![MATLAB Version](https://img.shields.io/badge/MATLAB-R2025b%2B-blue)
 ![Work in Progress](https://img.shields.io/badge/status-WIP-orange)
+![GitHub Repo stars](https://img.shields.io/github/stars/mherrmann21/PETER-Experimental-Validation-Control?style=social)
 
 <img src="doc/images/example_validation_1.jpg" alt="Static model-validation overlay" width="24%"/> <img src="doc/images/example_validation_2.jpg" alt="Second static model-validation overlay" width="24%"/> <img src="doc/images/example_tracking_1.jpg" alt="Trajectory-tracking overlay" width="24%"/> <img src="doc/images/example_tracking_2.jpg" alt="Second trajectory-tracking overlay" width="24%"/>
 
